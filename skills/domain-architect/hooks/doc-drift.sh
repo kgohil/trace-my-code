@@ -26,6 +26,12 @@ BASE="$(git merge-base HEAD "@{upstream}" 2>/dev/null || git merge-base HEAD ori
 CHANGED="$(git diff --name-only "$BASE"..HEAD -- "$ROOT" | sed "s#^#$ROOT/#")"
 [ -z "$CHANGED" ] && exit 0
 
+# Only CODE changes signal drift — editing a doc isn't itself stale-making (and a
+# PR that adds/updates docs shouldn't flag the very docs it touches). Drop the doc
+# files (ARCHITECTURE/CLAUDE/DATA_FLOW.md and anything under docs/) from the triggers.
+CHANGED="$(printf '%s\n' "$CHANGED" | grep -vE '/(ARCHITECTURE|CLAUDE|DATA_FLOW)\.md$|/docs/' || true)"
+[ -z "$CHANGED" ] && exit 0
+
 # A file is "documented" if an ancestor dir holds a doc, or an ADR governs it.
 doc_for() {  # echo the governing doc(s) for a changed file, or nothing
   local f="$1" d; d="$(dirname "$f")"
