@@ -42,6 +42,9 @@ spots an agent will otherwise assume). Cite each.
   of a constant, never just state the number).
 - **Absence:** <what is deliberately or accidentally _not_ validated/capped/deduped>; effect
   if violated (`path › symbol`). <!-- e.g. "no minimum count enforced; codes silently dropped" -->
+- **Known simplification:** <shortcut + its ceiling + the upgrade path> (`path › symbol`,
+  marked in code with a `trace-my-code:` comment). <!-- record reuse-first shortcuts here so
+  the next agent inherits the limit instead of trusting a gap -->
 
 ## External / out-of-repo
 
