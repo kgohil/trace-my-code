@@ -6,10 +6,10 @@ not trusted output — ground what you can, flag the rest.
 
 ## Step 1 — get source material (cheap first)
 
-- **If a knowledge/domain graph exists** (`.understand-anything/domain-graph.json`,
-  `.understand-anything/knowledge-graph.json`, or `graphify-out/graph.json`): derive
-  from it — it already clusters modules/flows. It's a lossy draft (it can't encode the
-  _why_ or gotchas), but it's a fast skeleton. Treat it as a starting outline only.
+- **If a prior code-graph/scan artifact exists** (any generated structural graph or
+  index your repo happens to have): use it as a rough outline only. Such artifacts are
+  lossy — they cluster files but don't encode the _why_, conditions, or gotchas — so
+  treat it as a skeleton to flesh out from code, never as the trace itself.
 - **Otherwise, lightweight scan** — do NOT read every file. Read: `README`, the package
   manifest(s), the top 2 levels of the dir tree, detected entry points (routes, CLI,
   jobs, `main`), the DB schema (Prisma/SQL/ORM models = the aggregates), and each

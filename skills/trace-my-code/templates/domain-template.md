@@ -33,6 +33,14 @@ One-paragraph product description.
 
 - **<A> → <B>:** how they connect, and the key invariant.
 
+## External services (cross-repo)
+
+<!-- Other services this repo talks to. Anchor to each one's root trace doc so an
+     agent can follow the flow across repos. See references/multi-repo.md. -->
+
+- **<service-b>** — <what we call it for>; caller: `path/to/client.ts:NN`.
+  Trace: [[../service-b/docs/DOMAIN.md]] <!-- sibling repo; or use the repo URL if not local -->
+
 ## Ubiquitous language — glossary
 
 | Term   | Means     | Not to be confused with |
