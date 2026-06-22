@@ -13,7 +13,7 @@ on these rules. Auto-docs fail one way: asserting without verifying. Don't.
    diff. Prefer citing `path/to/file.ts:NN`.
 4. **Flag, don't fabricate.** If a section _looks_ affected but you can't confirm the new
    behavior from the diff, leave it and insert
-   `<!-- domain-architect: review — could not verify from diff -->`. Never guess.
+   `<!-- trace-my-code: review — could not verify from diff -->`. Never guess.
 5. **Preserve doc shape.** Keep frontmatter, headings, `[[wikilinks]]`, and tone. Update
    `updated:`/`date:` frontmatter when you change a file.
 6. **No-op cleanly.** Formatting-only, comment-only, or internal-refactor changes that

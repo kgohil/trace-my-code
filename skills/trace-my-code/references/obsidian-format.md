@@ -1,7 +1,7 @@
 # Obsidian-compatible markdown
 
 The point: `docs/` opens directly as an Obsidian vault — a visual, linked graph of the
-architecture — with **no graph tool, no extraction, no build step**. Obsidian reads the
+architecture — with **no extra tooling, no build step**. Obsidian reads the
 markdown; the links ARE the edges.
 
 ## Conventions
