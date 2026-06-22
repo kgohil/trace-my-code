@@ -18,7 +18,7 @@ description: >-
 license: MIT
 metadata:
     author: vexton
-    version: "0.1.0"
+    version: "0.2.0"
     phase: maintain
 ---
 
@@ -43,6 +43,31 @@ fresh** — the only thing that erodes its value is staleness.
 All four are plain Markdown, **Obsidian-vault compatible** (YAML frontmatter +
 `[[wikilinks]]`) so `docs/` opens directly as a visual graph — no separate
 graph tool needed. See `references/obsidian-format.md`.
+
+The layout **scales by splitting**: most growth is a new module `ARCHITECTURE.md`
+or a new ADR (horizontal, no rework). When a single doc outgrows itself, split it
+into focused files behind an index — never let one file balloon. The split
+heuristic + progressive-disclosure rules are in `references/doc-splitting.md`.
+
+## Mode 0 — bootstrap (first install / blank repo)
+
+When the docs don't exist yet (fresh install, or "map the whole codebase", "create
+the initial architecture trace", "onboard me to this repo"), generate the **first
+draft** of the whole layer, then hand it to the human to curate. Follow
+`references/bootstrap.md`. Summary:
+
+1. **Prefer deriving from an existing graph** if one is present
+   (`.understand-anything/domain-graph.json` or `knowledge-graph.json`) — it's a
+   cheap, decent first draft. Otherwise do a lightweight scan: README + manifest +
+   dir tree + entry points + the DB schema + the module layout.
+2. **Emit:** `docs/DOMAIN.md` (contexts + ubiquitous language), an `ARCHITECTURE.md`
+   skeleton per significant module, seed ADRs for the obvious decisions (framework,
+   deployment, persistence), and the routing rule into `CLAUDE.md`/`AGENTS.md`.
+3. **Ground in code; flag the rest.** Fill what the code/schema proves; mark every
+   inferred or unverified claim `_TODO: confirm_`. The bootstrap output is a
+   **draft to curate**, not trusted truth — its job is to kill the blank page.
+4. Use the Obsidian format throughout, and apply the split heuristic up front so the
+   initial set is already a clean index → context → module → ADR graph.
 
 ## Mode A — author / maintain (human-invoked)
 
