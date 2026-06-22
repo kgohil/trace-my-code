@@ -42,7 +42,13 @@ Requires a Claude API credential in CI secrets.
 
 Paste the snippet from `references/routing-rule.md` into your root `CLAUDE.md`/`claude.md`.
 
-## 4. (one-time) seed the docs
+## 4. (one-time) bootstrap the docs
 
-Use the skill (Mode A) + `templates/` to write `docs/DOMAIN.md` and your first ADRs, and
-ensure each significant module has an `ARCHITECTURE.md`. The hook keeps them fresh after that.
+Run the skill's **Mode 0 (bootstrap)** to generate the initial trace — `docs/DOMAIN.md`,
+an `ARCHITECTURE.md` skeleton per significant module, and seed ADRs — from the codebase
+(optionally seeded by an existing `/understand-domain` graph). Just ask, e.g. _"bootstrap
+the architecture docs for this repo"_. It produces a **draft**: review the `_TODO: confirm_`
+markers and curate before trusting it.
+
+After that, Mode A handles edits and the drift hook keeps everything fresh. As the docs
+grow, the skill splits oversized files behind an index (see `references/doc-splitting.md`).

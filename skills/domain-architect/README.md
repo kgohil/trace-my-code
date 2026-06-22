@@ -15,9 +15,15 @@ implementation gotchas that knowledge-graph tools (graphify, Understand Anything
 
 ## What you get
 
+- **Bootstrap** mode: on a fresh repo, generate the initial end-to-end trace —
+  `DOMAIN.md` + per-module `ARCHITECTURE.md` skeletons + seed ADRs — from the codebase
+  (optionally seeded by a `/understand-domain` graph). A grounded **draft** to curate, so
+  you never start from a blank page.
 - **Author/maintain** mode: write/keep `DOMAIN.md`, per-module `ARCHITECTURE.md`, and ADRs,
   grounded in code, in **Obsidian-vault format** (frontmatter + `[[wikilinks]]`) so `docs/`
   opens as a visual graph with no extra tooling.
+- **Scales by splitting**: as the architecture grows, oversized docs are split into focused
+  files behind an index (progressive disclosure) instead of ballooning — `references/doc-splitting.md`.
 - **Freshness hook**: a pre-push (or CI) hook that detects when committed changes touch a
   documented area and either **flags** the stale docs (default, safe) or **auto-refreshes**
   them (grounded surgical edits, landed as a visible, revertable commit).
