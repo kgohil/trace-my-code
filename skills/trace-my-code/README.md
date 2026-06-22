@@ -63,4 +63,11 @@ Curated, not extracted. Grounded, not asserted. Surgical, not regenerative. Reve
 not silent. The skill _writes and maintains_ the trace from your code — it never treats a
 generated graph as the source of truth.
 
+## Inspiration
+
+Inspired by Andrej Karpathy's idea of building a personal **knowledge graph as an
+interlinked wiki** — using an LLM to compile raw material into navigable, backlinked
+notes. `trace-my-code` applies that shape to a codebase: the trace is a wiki of the
+domain flow + code patterns, kept current by an agent rather than hand-tended.
+
 License: MIT.

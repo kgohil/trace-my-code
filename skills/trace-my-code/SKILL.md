@@ -1,26 +1,26 @@
 ---
 name: trace-my-code
 description: >-
-  Build and maintain a living trace of a codebase — the domain flow plus the
-  underlying code structure and patterns — as curated Markdown that gives a
-  coding agent the right, always-current context to develop features, follow
-  existing patterns, and refactor safely without re-reading the whole repo.
-  Use this whenever you map or document how a feature/flow works end to end,
-  author or update a DOMAIN/ARCHITECTURE/DATA_FLOW doc or an ADR, record an
-  architecture decision, onboard to or trace an unfamiliar area, link a service's
-  docs to the services it talks to, or refresh docs after code changed — even if
-  the user does not say "trace-my-code" by name. Strongly prefer this over ad-hoc
-  doc edits or crawling files blind whenever you need to understand or document how
-  the system is built. Triggers on: "trace this flow", "how does X work end to end",
-  "map the codebase", "document this module", "write an ADR", "record this decision",
-  "the docs are stale", "keep docs in sync", "onboard me to this repo", "link this
-  service to its dependencies". NOT for: in-code type/DDD value-object design, or
-  prose unrelated to architecture/domain documentation.
+    Build and maintain a living trace of a codebase — the domain flow plus the
+    underlying code structure and patterns — as curated Markdown that gives a
+    coding agent the right, always-current context to develop features, follow
+    existing patterns, and refactor safely without re-reading the whole repo.
+    Use this whenever you map or document how a feature/flow works end to end,
+    author or update a DOMAIN/ARCHITECTURE/DATA_FLOW doc or an ADR, record an
+    architecture decision, onboard to or trace an unfamiliar area, link a service's
+    docs to the services it talks to, or refresh docs after code changed — even if
+    the user does not say "trace-my-code" by name. Strongly prefer this over ad-hoc
+    doc edits or crawling files blind whenever you need to understand or document how
+    the system is built. Triggers on: "trace this flow", "how does X work end to end",
+    "map the codebase", "document this module", "write an ADR", "record this decision",
+    "the docs are stale", "keep docs in sync", "onboard me to this repo", "link this
+    service to its dependencies". NOT for: in-code type/DDD value-object design, or
+    prose unrelated to architecture/domain documentation.
 license: MIT
 metadata:
-  author: kgohil
-  version: "0.3.0"
-  phase: understand
+    author: kgohil
+    version: "0.3.1"
+    phase: understand
 ---
 
 # Trace My Code
@@ -30,6 +30,9 @@ metadata:
 the **code structure and patterns** (where it lives, how it's built, why) — as
 curated, navigable Markdown. The trace is the context a coding agent reads instead
 of re-deriving the system from raw files on every task.
+
+Inspired by Andrej Karpathy's idea of an LLM-compiled, interlinked **knowledge-graph
+wiki** — applied here to a codebase and kept current by an agent.
 
 **Why it pays off:**
 
