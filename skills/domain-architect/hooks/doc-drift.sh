@@ -35,12 +35,16 @@ doc_for() {  # echo the governing doc(s) for a changed file, or nothing
     done
     d="$(dirname "$d")"
   done
-  # ADRs whose `governs:` frontmatter matches this path
-  grep -rliE "governs:" "$ROOT/docs/adrs" 2>/dev/null | while read -r adr; do
+  # ADRs whose `governs:` frontmatter matches this path. Process substitution +
+  # `|| true` so a no-match grep (no ADR has `governs:` yet) can't fail the
+  # function under `set -e -o pipefail` and silently abort drift detection.
+  while IFS= read -r adr; do
+    [ -n "$adr" ] || continue
     while IFS= read -r p; do
       [ -n "$p" ] && [[ "$f" == *"$p"* ]] && echo "$adr"
-    done < <(awk '/^governs:/{flag=1;next}/^[a-z]+:/{flag=0}flag&&/-/{gsub(/[- ]/,"");print}' "$adr" 2>/dev/null)
-  done
+    done < <(awk '/^governs:/{flag=1;next}/^[a-z]+:/{flag=0}flag&&/-/{gsub(/[- ]/,"");print}' "$adr" 2>/dev/null || true)
+  done < <(grep -rliE "governs:" "$ROOT/docs/adrs" 2>/dev/null || true)
+  return 0
 }
 
 DOCS="$(while IFS= read -r f; do doc_for "$f"; done <<< "$CHANGED" | sort -u)"
