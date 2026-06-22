@@ -27,9 +27,13 @@ What it improves:
   `ARCHITECTURE.md` skeletons + seed ADRs), grounded in code with `_TODO` markers for
   anything unverified. A draft to curate — never a blank page.
 - **Author / maintain** — write and keep `DOMAIN.md`, per-area `ARCHITECTURE.md`/`DATA_FLOW.md`,
-  and ADRs, grounded in `path:line` citations.
+  and ADRs, grounded in **symbol-anchored** citations.
+- **Reuse-first development** — before writing new code, an iron-law'd, gated loop makes the
+  agent read the trace's **patterns & extension points** and **reuse → extend → build new**
+  (in that order) instead of reinventing a helper/component the repo already has.
 - **Always current** — a git hook or CI workflow detects code changes in a traced area and
-  **flags** (default) or **auto-refreshes** (grounded, surgical, revertable) the docs.
+  **flags** (default) or **auto-refreshes** (grounded, surgical, revertable) the docs, and
+  warns when a doc cites a symbol that's been renamed/removed.
 - **Hierarchical + Obsidian-native** — docs mirror the code tree, use frontmatter +
   `[[wikilinks]]`, and **split** behind an index as they grow, so `docs/` opens as a visual,
   navigable map.
@@ -48,11 +52,11 @@ npx skills add kgohil/trace-my-code --skill trace-my-code
 
 ```
 trace-my-code/
-  SKILL.md                      # bootstrap + author/maintain + drift modes
-  templates/                    # Obsidian-ready DOMAIN.md + ADR templates
-  hooks/doc-drift.sh            # freshness hook (git pre-push or CI)
+  SKILL.md                      # bootstrap + author/maintain + drift + reuse-first modes
+  templates/                    # Obsidian-ready DOMAIN.md + ARCHITECTURE.md + ADR templates
+  hooks/doc-drift.sh            # freshness hook (git pre-push or CI) + citation check
   hooks/doc-drift.yml.example   # CI workflow variant
-  references/                   # bootstrap · auto-update contract · doc-splitting ·
+  references/                   # bootstrap · auto-update contract · reuse-first · doc-splitting ·
                                 #   obsidian format · multi-repo · routing rule
   install.md
 ```

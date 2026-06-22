@@ -10,7 +10,11 @@ on these rules. Auto-docs fail one way: asserting without verifying. Don't.
 2. **Surgical, not regenerative.** Edit only the sentences/sections the diff made stale.
    Everything still accurate stays **verbatim**. Never rewrite a whole file.
 3. **Ground every change in code.** Each edited claim must correspond to a line in the
-   diff. Prefer citing `path/to/file.ts:NN`.
+   diff. Cite by symbol — `` `path/to/file.ts › symbol` `` — not a bare `:line` (lines
+   rot). When a diff moves code a doc cites, re-point the symbol; don't leave a stale line.
+8. **Re-verify numbers and vendors.** If the diff touches a magic number/threshold the doc
+   states, update the value AND its cited source. Name any 3rd-party system from the
+   import/SDK in the diff, never from a comment.
 4. **Flag, don't fabricate.** If a section _looks_ affected but you can't confirm the new
    behavior from the diff, leave it and insert
    `<!-- trace-my-code: review — could not verify from diff -->`. Never guess.

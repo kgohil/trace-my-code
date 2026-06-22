@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.3.2"
+    version: "0.4.0"
     phase: understand
 ---
 
@@ -50,8 +50,12 @@ applied here to a codebase instead of a research corpus.
 
 1. **`docs/DOMAIN.md`** — the map: domains / bounded contexts, the aggregates and
    ubiquitous language, and how contexts connect.
-2. **Per-area `ARCHITECTURE.md` / `DATA_FLOW.md`** (next to the code) — the flow, the
-   patterns, the conditions, the gotchas, with `path:line` citations.
+2. **Per-area `ARCHITECTURE.md` / `DATA_FLOW.md`** (next to the code, from
+   `templates/architecture-template.md`) — the flow, the **patterns & extension points**
+   (the canonical example to copy + where to plug a new one in), the **invariants &
+   absences** (limits, defaults, magic numbers, and what is _not_ enforced), the
+   **external / out-of-repo** anchors, and the gotchas — with **symbol-anchored**
+   citations.
 3. **`docs/adrs/*.md`** — the _why_ behind non-trivial decisions.
 4. A **routing rule** in the repo's `CLAUDE.md` / `AGENTS.md` telling agents to read
    the trace before touching an area (`references/routing-rule.md`).
@@ -82,13 +86,34 @@ together: no central index, just links between roots. See `references/multi-repo
   or CI (`hooks/doc-drift.sh`) finds **code** changes in a traced area and either
   **flags** the affected docs (default, safe) or **rewrites** them — grounded, surgical,
   landed as a visible revertable commit. Doc-only changes don't flag themselves.
+- **Mode C — reuse-first development** (`references/reuse-first.md`): before writing any
+  new code, consult the trace to find what already exists and the established pattern,
+  then **reuse → extend → (only then) build new**. This is the payoff mode — it's what
+  stops an agent reinventing a helper/component/flow the repo already has.
+
+## The Iron Law (Mode C)
+
+```
+NO NEW CODE WITHOUT A REUSE INVESTIGATION FIRST
+```
+
+A coding agent's default is to reach for a blank file. Before creating a new file,
+helper, component, hook, or abstraction, you MUST first read the trace and the closest
+existing implementation, and justify _why reuse/extend doesn't fit_. "I didn't find it
+in one grep" is not an investigation. See `references/reuse-first.md` for the gated
+phases and the red-flag rationalizations that mean STOP.
 
 ## Guardrails (why the trace stays trustworthy)
 
 - **Curated, not extracted.** The agent _writes_ the trace from code; it never trusts an
   auto-generated graph as the source of truth.
 - **Grounded, not asserted.** Every claim cites code; unverifiable changes are flagged
-  for review, not invented.
+  for review, not invented. **Name a 3rd-party system only from its import/SDK/config**
+  (e.g. `@posthog/ai`), never from a code comment or a guess — comments rot and mislead.
+- **Cite by symbol, not by line.** Use `` `path/to/file.ext › symbolName()` `` — a raw
+  `:line` rots on every edit above it. A line number, if given, is a hint (`~:NN`); the
+  agent locates by symbol and **confirms it before editing**. The drift hook checks cited
+  symbols still exist.
 - **Surgical + reversible.** Drift fixes edit only stale sections and land as one
   revertable commit — never a silent whole-file rewrite.
 - **Hierarchical + linked.** Files mirror the code tree and link across areas (and across

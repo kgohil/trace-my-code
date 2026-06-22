@@ -20,9 +20,21 @@ not trusted output — ground what you can, flag the rest.
 1. **`docs/DOMAIN.md`** (from `templates/domain-template.md`): one bounded context per
    coherent module group; list its aggregates (from the schema), modules, and the
    ubiquitous-language terms you can name from the code. Add the glossary.
-2. **Per significant module: `<module>/ARCHITECTURE.md`** skeleton: purpose, key
-   files/entry points, the main flow (only as far as you can verify), and a
-   `## Gotchas` stub. Don't fabricate flows — outline what's evident, `_TODO_` the rest.
+2. **Per significant module: `<module>/ARCHITECTURE.md`** from
+   `templates/architecture-template.md`. Fill every section, `_TODO: confirm_` what you
+   can't verify — do not drop sections:
+   - **Flow** — what happens, in what order, **under which conditions** (branches/gates),
+     only as far as you can verify.
+   - **Patterns & extension points** — the reusable shapes the module follows, each with a
+     **canonical example** (`path › symbol`) and **how to add a new one**. This is what
+     reuse-first (Mode C) reads; a module doc without it can't stop reinvention.
+   - **Invariants & absences** — limits, defaults, **magic numbers cited to their source**,
+     and what is _not_ enforced (no floor/cap, silent drops, defaults). The blind spots an
+     agent will otherwise guess wrong about.
+   - **External / out-of-repo** — prompt registries, feature flags, env-gated branches,
+     3rd-party SDKs — named **from the import/SDK**, not a comment.
+   - **Gotchas** — including stale comments that could mislead.
+   Don't fabricate flows — outline what's evident, `_TODO_` the rest.
 3. **Seed ADRs** (`docs/adrs/`, from `templates/adr-template.md`) for the _obvious_
    decisions only — framework choice, deployment topology, persistence/ORM, any
    pattern that's clearly deliberate. Status `proposed`; fill Context/Decision from
@@ -31,9 +43,16 @@ not trusted output — ground what you can, flag the rest.
 
 ## Step 3 — discipline
 
-- **Ground or flag.** Every concrete claim cites code (`path:NN`); everything inferred
-  is marked `_TODO: confirm_`. Inventing a flow is worse than leaving a stub — a wrong
-  doc is trusted and misleads.
+- **Ground or flag.** Every concrete claim cites code; everything inferred is marked
+  `_TODO: confirm_`. Inventing a flow is worse than leaving a stub — a wrong doc is
+  trusted and misleads.
+- **Cite by symbol, not line.** `` `path/to/file.ext › symbolName()` `` (line optional as
+  `~:NN`). Line numbers rot on the next edit; symbols survive.
+- **Vendors from imports, never comments.** Name a 3rd-party system (prompt host, queue,
+  payment, analytics) only from its `import`/SDK/config. A comment saying "Langfuse" next
+  to a `@posthog/ai` import is the comment lying — cite the import and flag the stale comment.
+- **Magic numbers carry their source.** Never write a bare threshold/limit; write the value
+  _and_ where it's defined (`` `path › CONST` ``).
 - **Apply the split heuristic from the start** (`references/doc-splitting.md`): emit an
   index + focused files, not three giant docs.
 - **Obsidian format** throughout (frontmatter + `[[wikilinks]]`).
