@@ -1,0 +1,30 @@
+# Optional CI variant of the domain-architect freshness hook.
+# Copy to .github/workflows/doc-drift.yml. Runs on PRs; in rewrite mode it commits
+# the doc refresh back to the PR branch (no re-push needed). Needs a Claude API
+# credential in repo secrets (ANTHROPIC_API_KEY) for rewrite mode.
+name: doc-drift
+on:
+  pull_request:
+    types: [opened, synchronize]
+permissions:
+  contents: write
+jobs:
+  doc-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: Detect doc drift (flag mode by default)
+        env:
+          # Set to 'rewrite' + provide ANTHROPIC_API_KEY to auto-refresh docs.
+          DOMAIN_ARCHITECT_MODE: flag
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          git config user.name  "domain-architect"
+          git config user.email "domain-architect@users.noreply.github.com"
+          bash .claude/skills/domain-architect/hooks/doc-drift.sh || true
+      - name: Push doc refresh (rewrite mode only)
+        if: ${{ env.DOMAIN_ARCHITECT_MODE == 'rewrite' }}
+        run: git push || true
