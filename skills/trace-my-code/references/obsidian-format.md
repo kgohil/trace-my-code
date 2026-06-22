@@ -15,10 +15,36 @@ markdown; the links ARE the edges.
 - A short **`docs/adrs/README.md`** acts as the ADR index (also the vault landing note).
 - Keep headings stable — Obsidian deep-links to `[[Doc#Heading]]`.
 
-## Using it
+## Viewing the graph
 
-Open `docs/` as a vault in Obsidian → the **graph view** shows contexts ↔ ADRs ↔ modules,
-backlinks panel shows what references the current doc. Same files Claude reads as prose.
+The trace is plain Markdown — readable in any editor. To see it *as a graph*, use any
+wiki that understands `[[wikilinks]]`. Obsidian (free) is the reference:
+
+1. **Install** [Obsidian](https://obsidian.md) (or any `[[wikilink]]`-aware editor —
+   Logseq, Foam-in-VS-Code, etc.).
+2. **Open the trace as a vault:** `Open folder as vault` → pick the repo's `docs/`
+   (the folder holding `DOMAIN.md`, `adrs/`, and the per-module docs). No build, no
+   server, no plugins required.
+3. **Graph view:** click the graph icon (or `Ctrl/Cmd-G`). Each doc is a node; every
+   `[[wikilink]]` is an edge — you see contexts ↔ ADRs ↔ modules at a glance. Use
+   **Group** colors by `tags`/`type` frontmatter to tint domains differently.
+4. **Backlinks:** open any doc → the backlinks pane lists every doc that links *to* it
+   ("what depends on this decision?"). This is the inbound half the graph view shows.
+5. **Local graph:** with a doc open, the local-graph view shows just that node and its
+   immediate neighbors — handy for "what touches the thesis flow?"
+6. **Navigate:** `Cmd/Ctrl-O` quick-switch by title; `[[` autocompletes links while
+   editing. Headings are addressable as `[[Doc#Heading]]`.
+
+These are the same files the coding agent reads as prose — the graph is just a second
+view over them, never a separate artifact to keep in sync.
+
+### Multi-repo / microservices
+
+Open the **parent folder that contains the sibling repos** as one vault (e.g. a
+`~/work/` that holds `service-a/`, `service-b/`). Obsidian indexes every `docs/` under
+it, so cross-repo anchor links — `[[service-b/docs/DOMAIN|service-b]]` — resolve and
+appear as edges in a single graph spanning all services. See [`multi-repo.md`](multi-repo.md)
+for the anchor-linking convention that makes this work.
 
 ## Compatibility note
 
