@@ -71,6 +71,15 @@ navigable graph — contexts ↔ ADRs ↔ modules — with a backlinks pane for 
 this?". Multi-repo: open the parent folder of your sibling repos as one vault to get a
 single graph spanning all services. Step-by-step: [`references/obsidian-format.md`](skills/trace-my-code/references/obsidian-format.md).
 
+## Does it work?
+
+Early signal on a real monorepo: the trace + reuse-first cut an agent's source-file crawl
+roughly in half, made it **extend an existing function instead of writing a new one**, and
+stopped it adding a library for something the platform does natively — safety guards kept.
+Method, metrics, the standard benchmarks to run (SWE-bench, a ponytail-style git-diff
+harness, the context-efficiency probe), and the honest n=1 results table:
+[`../../benchmarks/`](../../benchmarks/).
+
 ## Design stance
 
 Curated, not extracted. Grounded, not asserted. Surgical, not regenerative. Reversible,
