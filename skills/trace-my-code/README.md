@@ -29,8 +29,10 @@ What it improves:
 - **Author / maintain** — write and keep `DOMAIN.md`, per-area `ARCHITECTURE.md`/`DATA_FLOW.md`,
   and ADRs, grounded in **symbol-anchored** citations.
 - **Reuse-first development** — before writing new code, an iron-law'd, gated loop makes the
-  agent read the trace's **patterns & extension points** and **reuse → extend → build new**
-  (in that order) instead of reinventing a helper/component the repo already has.
+  agent read the trace's **patterns & extension points** and climb a reuse ladder (**YAGNI →
+  reuse → extend → stdlib → native → installed dep → one line → minimum new**) instead of
+  reinventing a helper or over-building what a native feature already does — while a
+  **safety floor** keeps validation, error handling, security, and a11y off the chopping block.
 - **Always current** — a git hook or CI workflow detects code changes in a traced area and
   **flags** (default) or **auto-refreshes** (grounded, surgical, revertable) the docs, and
   warns when a doc cites a symbol that's been renamed/removed.
@@ -82,5 +84,11 @@ Inspired by Andrej Karpathy's **["LLM Wiki"](https://gist.github.com/karpathy/44
 backlinked, interlinked wiki instead of re-deriving it on every query. `trace-my-code`
 applies that shape to a codebase: the trace is a wiki of the domain flow + code patterns,
 kept current by an agent rather than hand-tended.
+
+The reuse-first mode's decision ladder and safety floor are adapted from
+**[ponytail](https://github.com/DietrichGebert/ponytail)** (MIT) — the "lazy senior dev"
+who reuses before he writes and never cuts a safety guard. trace-my-code supplies the map
+that makes its "already in this codebase? reuse it" rung reliable in a large repo. The
+gated-investigation shape borrows from `superpowers:systematic-debugging`.
 
 License: MIT.

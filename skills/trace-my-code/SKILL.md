@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.4.0"
+    version: "0.5.0"
     phase: understand
 ---
 
@@ -87,9 +87,12 @@ together: no central index, just links between roots. See `references/multi-repo
   **flags** the affected docs (default, safe) or **rewrites** them — grounded, surgical,
   landed as a visible revertable commit. Doc-only changes don't flag themselves.
 - **Mode C — reuse-first development** (`references/reuse-first.md`): before writing any
-  new code, consult the trace to find what already exists and the established pattern,
-  then **reuse → extend → (only then) build new**. This is the payoff mode — it's what
-  stops an agent reinventing a helper/component/flow the repo already has.
+  new code, consult the trace, then climb the reuse ladder — **YAGNI → reuse → extend →
+  stdlib → native → installed dep → one line → (only then) minimum new** — while holding
+  the **safety floor** (validation, error handling, security, accessibility, and anything
+  explicitly requested are never cut). This is the payoff mode — it's what stops an agent
+  reinventing a helper/component/flow the repo already has, or over-building what a native
+  feature already does.
 
 ## The Iron Law (Mode C)
 
@@ -99,9 +102,11 @@ NO NEW CODE WITHOUT A REUSE INVESTIGATION FIRST
 
 A coding agent's default is to reach for a blank file. Before creating a new file,
 helper, component, hook, or abstraction, you MUST first read the trace and the closest
-existing implementation, and justify _why reuse/extend doesn't fit_. "I didn't find it
-in one grep" is not an investigation. See `references/reuse-first.md` for the gated
-phases and the red-flag rationalizations that mean STOP.
+existing implementation, climb the reuse ladder, and justify _why reuse/extend doesn't
+fit_. "I didn't find it in one grep" is not an investigation. The ladder cuts code, never
+correctness — the safety floor is non-negotiable. Inspired by the "lazy senior dev" ladder
++ safety floor from [ponytail](https://github.com/DietrichGebert/ponytail) (MIT). See
+`references/reuse-first.md` for the gated phases, the ladder, and the red flags that mean STOP.
 
 ## Guardrails (why the trace stays trustworthy)
 
