@@ -59,6 +59,34 @@ DOCS="$(while IFS= read -r f; do doc_for "$f"; done <<< "$CHANGED" | sort -u)"
 echo "[trace-my-code] changed files touch documented areas. Governing docs:"
 echo "$DOCS" | sed "s#^$ROOT/#  - #"
 
+# Citation integrity (advisory): warn when a governing doc cites a symbol that no longer
+# exists in the cited file — catches renames/removals, the highest-value drift, and
+# sidesteps line-number rot. Citation format: `path/to/file.ext › symbolName`. Never fails
+# the push by itself; it's a heads-up the doc may be stale.
+check_citations() {
+  local doc cite path sym file hits=0
+  while IFS= read -r doc; do
+    [ -f "$doc" ] || continue
+    while IFS= read -r cite; do
+      [ -n "$cite" ] || continue
+      path="${cite%% › *}"; sym="${cite##* › }"
+      path="${path#\`}"; sym="${sym%\`}"
+      sym="${sym%%(*}"                                    # drop "(...)"
+      sym="$(printf '%s' "$sym" | tr -cd '[:alnum:]_')"   # bare identifier
+      [ -n "$path" ] && [ -n "$sym" ] || continue
+      file="$ROOT/$path"
+      if [ ! -f "$file" ]; then
+        echo "  ⚠ $(basename "$doc"): cited file missing — $path"; hits=$((hits+1)); continue
+      fi
+      grep -qF "$sym" "$file" 2>/dev/null || {
+        echo "  ⚠ $(basename "$doc"): symbol '$sym' not found in $path (renamed/removed?)"; hits=$((hits+1)); }
+    done < <(grep -oE '`[^`]+ › [^`]+`' "$doc" 2>/dev/null || true)
+  done < <(printf '%s\n' "$DOCS")
+  [ "$hits" -gt 0 ] && echo "[trace-my-code] $hits stale citation(s) above — fix or refresh the doc."
+  return 0
+}
+check_citations
+
 if [ "$MODE" != "rewrite" ]; then
   echo "[trace-my-code] flag mode — review the docs above (set TRACE_MY_CODE_MODE=rewrite to auto-refresh)."
   exit 0
