@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.3.1"
+    version: "0.3.2"
     phase: understand
 ---
 
@@ -31,8 +31,9 @@ the **code structure and patterns** (where it lives, how it's built, why) — as
 curated, navigable Markdown. The trace is the context a coding agent reads instead
 of re-deriving the system from raw files on every task.
 
-Inspired by Andrej Karpathy's idea of an LLM-compiled, interlinked **knowledge-graph
-wiki** — applied here to a codebase and kept current by an agent.
+Inspired by [Andrej Karpathy's "LLM Wiki" idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+— an LLM-compiled, interlinked **knowledge-graph wiki** kept current by an agent —
+applied here to a codebase instead of a research corpus.
 
 **Why it pays off:**
 

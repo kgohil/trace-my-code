@@ -57,6 +57,14 @@ trace-my-code/
   install.md
 ```
 
+## View the graph
+
+The trace is plain Markdown, but it's also a graph: open the repo's `docs/` as a vault in
+[Obsidian](https://obsidian.md) (free, no plugins) and the `[[wikilinks]]` render as a
+navigable graph — contexts ↔ ADRs ↔ modules — with a backlinks pane for "what depends on
+this?". Multi-repo: open the parent folder of your sibling repos as one vault to get a
+single graph spanning all services. Step-by-step: [`references/obsidian-format.md`](skills/trace-my-code/references/obsidian-format.md).
+
 ## Design stance
 
 Curated, not extracted. Grounded, not asserted. Surgical, not regenerative. Reversible,
@@ -65,9 +73,10 @@ generated graph as the source of truth.
 
 ## Inspiration
 
-Inspired by Andrej Karpathy's idea of building a personal **knowledge graph as an
-interlinked wiki** — using an LLM to compile raw material into navigable, backlinked
-notes. `trace-my-code` applies that shape to a codebase: the trace is a wiki of the
-domain flow + code patterns, kept current by an agent rather than hand-tended.
+Inspired by Andrej Karpathy's **["LLM Wiki"](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)**
+(shared on X, Apr 2026) — using an LLM to *compile* raw material into a navigable,
+backlinked, interlinked wiki instead of re-deriving it on every query. `trace-my-code`
+applies that shape to a codebase: the trace is a wiki of the domain flow + code patterns,
+kept current by an agent rather than hand-tended.
 
 License: MIT.
