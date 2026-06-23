@@ -95,7 +95,16 @@ Across other tasks the same pattern holds: an earlier map-only version still mis
 
 ## Setup — two steps, then it runs itself
 
-**0. Install the skill** (once per machine, any agent — detects your installed agents and copies it into each):
+**0. Install the skill.** Two ways:
+
+_Claude Code (plugin marketplace):_
+
+```
+/plugin marketplace add kgohil/trace-my-code
+/plugin install trace-my-code@trace-my-code
+```
+
+_Any agent (Claude Code, Cursor, Codex, Copilot, … — detects your installed agents and copies it into each):_
 
 ```bash
 npx skillfish add kgohil/trace-my-code trace-my-code
