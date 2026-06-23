@@ -1,0 +1,21 @@
+{
+  "name": "trace-my-code",
+  "interface": {
+    "displayName": "trace-my-code"
+  },
+  "plugins": [
+    {
+      "name": "trace-my-code",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/kgohil/trace-my-code.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
