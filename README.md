@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/otter-mascot.jpg" width="200" alt="trace-my-code otter mascot — a clever otter in oval glasses holding a knowledge graph, sitting on a stack of docs">
+  <img src="assets/otter-mascot.png" width="200" alt="trace-my-code otter mascot — a clever otter in oval glasses holding a knowledge graph, sitting on a stack of docs">
 </p>
 
 <h1 align="center">trace-my-code</h1>

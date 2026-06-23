@@ -11,7 +11,8 @@
       "name": "trace-my-code",
       "description": "Curated, self-refreshing architecture + domain docs (Obsidian-format, drift hook) so a coding agent understands your domain and reuses what exists instead of rebuilding it.",
       "source": "./",
-      "category": "productivity"
+      "category": "productivity",
+      "icon": "./assets/otter-icon.png"
     }
   ]
 }
