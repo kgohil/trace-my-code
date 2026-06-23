@@ -95,30 +95,32 @@ Across other tasks the same pattern holds: an earlier map-only version still mis
 
 ## Setup — two steps, then it runs itself
 
-**0. Install the skill.** Two ways:
+**0. Install the skill.**
 
-_Claude Code (plugin marketplace):_
+_Most agents — one command_ (Claude Code, Cursor, Gemini CLI, Copilot, Cline, Windsurf, opencode, … — detects your installed agents and wires the skill into each):
+
+```bash
+npx skills add kgohil/trace-my-code --skill trace-my-code --global
+# alternative installer:  npx skillfish add kgohil/trace-my-code trace-my-code
+```
+
+`skills` ([vercel-labs](https://github.com/vercel-labs/skills)) **symlinks** the skill into each agent, so updates to the source reflect live; `skillfish` copies instead. Either works.
+
+_Claude Code — native plugin (optional):_
 
 ```
 /plugin marketplace add kgohil/trace-my-code
 /plugin install trace-my-code@trace-my-code
 ```
 
-_Codex (plugin marketplace):_
+_Codex — required (Codex is plugins-only):_
 
 ```bash
 codex plugin marketplace add kgohil/trace-my-code
-# then in codex:  /plugins  →  select trace-my-code  →  install
+# then in codex:  /plugins  →  trace-my-code  →  install
 ```
 
-_Other agents (Cursor, Copilot, Gemini, opencode, … — detects your installed agents and copies the skill into each):_
-
-```bash
-npx skillfish add kgohil/trace-my-code trace-my-code
-# or:  npx skills add kgohil/trace-my-code --skill trace-my-code
-```
-
-> **Codex note:** Codex has no `skills/` folder — it only loads **plugins**. The `npx skillfish` route copies the skill into `~/.codex/skills/`, which Codex ignores, so use the `codex plugin marketplace` route above for Codex.
+> **Why Codex is separate:** Codex has no skills folder — it only loads **plugins**, so the cross-agent installers above don't reach it (they'd copy into `~/.codex/skills/`, which Codex ignores). The plugin route is the only one that works for Codex. Every other agent is covered by the single command above.
 
 Then, in your repo, you only do two things:
 
