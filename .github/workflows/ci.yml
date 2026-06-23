@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest \
+            dir /repo --no-banner --redact --exit-code 1
+
+  shellcheck:
+    name: Shellcheck (hooks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck on shell hooks
+        run: |
+          shopt -s nullglob
+          files=(skills/trace-my-code/hooks/*.sh)
+          if [ ${#files[@]} -eq 0 ]; then echo "no shell files"; exit 0; fi
+          shellcheck -S warning "${files[@]}"
+
+  actionlint:
+    name: Actionlint (workflows)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint workflow files
+        uses: raven-actions/actionlint@v2
