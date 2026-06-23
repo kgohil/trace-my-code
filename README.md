@@ -93,17 +93,26 @@ The "tighten the conviction gate" request above, cold vs trace, as actually meas
 
 Across other tasks the same pattern holds: an earlier map-only version still mis-cited lines and **hallucinated a vendor** (said Langfuse; the repo uses PostHog); the current reuse-first version cites by symbol, finds callers a single grep misses, and chose a native feature over adding a library — without dropping a safety guard. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
 
-## Install
+## Setup — two steps, then it runs itself
 
-Any agent, via an agent-skills CLI (detects your installed agents and copies the skill into each):
+**0. Install the skill** (once per machine, any agent — detects your installed agents and copies it into each):
 
 ```bash
 npx skillfish add kgohil/trace-my-code trace-my-code
-# or
-npx skills add kgohil/trace-my-code --skill trace-my-code
+# or:  npx skills add kgohil/trace-my-code --skill trace-my-code
 ```
 
-Then, in a repo: ask your agent to **"bootstrap the trace"** (Mode 0) to seed `DOMAIN.md` + per-module `ARCHITECTURE.md` + seed ADRs from the code, wire the drift hook ([`skills/trace-my-code/install.md`](skills/trace-my-code/install.md)), and curate the `_TODO` markers. From then on the agent reads the trace before building, and the hook keeps it fresh.
+Then, in your repo, you only do two things:
+
+**1. Run `/trace-my-code`** → it bootstraps the trace (Mode 0): `DOMAIN.md` + per-module `ARCHITECTURE.md` + seed ADRs, grounded in your code. Curate the `_TODO` markers it leaves.
+
+**2. Wire the drift hook** so the trace stays current on its own — pick one:
+- **Local git hook** — `post-commit` (or `pre-push`) that runs the drift check on each commit.
+- **CI workflow** — runs on merge to your main branch.
+
+Both ship with the skill: [`hooks/doc-drift.sh`](skills/trace-my-code/hooks/doc-drift.sh) + the CI variant [`hooks/doc-drift.yml.example`](skills/trace-my-code/hooks/doc-drift.yml.example). Wiring instructions: [`install.md`](skills/trace-my-code/install.md). Set `flag` (safe default, just warns) or `rewrite` (auto-refreshes the docs in a visible, revertable commit).
+
+**That's it.** From then on it's automatic: **every commit/merge refreshes the trace, and every feature request reads it.** You write code; the map maintains itself.
 
 ## What you get
 
