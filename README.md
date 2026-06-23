@@ -8,14 +8,13 @@
   <em>The otter who already read your codebase — and learned your domain. So your agent understands what you mean, and reuses what's already there.</em>
 </p>
 
-<!-- Static badges: repo is private, so dynamic shields (stars/release/license-from-repo)
-     won't resolve. Swap to dynamic equivalents once the repo is public. -->
 <p align="center">
-  <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
-  <img src="https://img.shields.io/badge/version-0.5.0-111111?style=flat-square" alt="Version 0.5.0">
+  <a href="https://github.com/kgohil/trace-my-code/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kgohil/trace-my-code?style=flat-square&color=111111" alt="License"></a>
+  <a href="https://github.com/kgohil/trace-my-code/releases/latest"><img src="https://img.shields.io/github/v/release/kgohil/trace-my-code?style=flat-square&color=111111" alt="Latest release"></a>
+  <a href="https://github.com/kgohil/trace-my-code/stargazers"><img src="https://img.shields.io/github/stars/kgohil/trace-my-code?style=flat-square&color=111111" alt="Stars"></a>
   <img src="https://img.shields.io/badge/works%20with-24%20agents-111111?style=flat-square" alt="Works with 24 agents">
   <img src="https://img.shields.io/badge/skill-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20Codex%20%C2%B7%20Copilot-111111?style=flat-square" alt="Agent skill">
-  <img src="https://img.shields.io/badge/PRs-welcome-111111?style=flat-square" alt="PRs welcome">
+  <a href="https://github.com/kgohil/trace-my-code/blob/main/CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-111111?style=flat-square" alt="PRs welcome"></a>
 </p>
 
 <p align="center">
