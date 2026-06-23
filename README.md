@@ -5,7 +5,7 @@
 <h1 align="center">trace-my-code</h1>
 
 <p align="center">
-  <em>The senior who already read the codebase, the domain, and the awkward names you use for things. Your agent understands what you mean, then reuses what's there instead of rebuilding it.</em>
+  <em>The otter who already read your codebase — and learned your domain. So your agent understands what you mean, and reuses what's already there.</em>
 </p>
 
 <!-- Static badges: repo is private, so dynamic shields (stars/release/license-from-repo)
