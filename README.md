@@ -1,7 +1,21 @@
+<p align="center">
+  <img src="assets/otter-mascot.jpg" width="200" alt="trace-my-code otter mascot — a clever otter in oval glasses holding a knowledge graph, sitting on a stack of docs">
+</p>
+
 <h1 align="center">trace-my-code</h1>
 
 <p align="center">
   <em>The senior who already read the codebase. Your agent reuses what's there instead of rebuilding it.</em>
+</p>
+
+<!-- Static badges: repo is private, so dynamic shields (stars/release/license-from-repo)
+     won't resolve. Swap to dynamic equivalents once the repo is public. -->
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
+  <img src="https://img.shields.io/badge/version-0.5.0-111111?style=flat-square" alt="Version 0.5.0">
+  <img src="https://img.shields.io/badge/works%20with-24%20agents-111111?style=flat-square" alt="Works with 24 agents">
+  <img src="https://img.shields.io/badge/skill-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20Codex%20%C2%B7%20Copilot-111111?style=flat-square" alt="Agent skill">
+  <img src="https://img.shields.io/badge/PRs-welcome-111111?style=flat-square" alt="PRs welcome">
 </p>
 
 <p align="center">
