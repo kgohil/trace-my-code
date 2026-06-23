@@ -5,7 +5,7 @@
 <h1 align="center">trace-my-code</h1>
 
 <p align="center">
-  <em>The senior who already read the codebase. Your agent reuses what's there instead of rebuilding it.</em>
+  <em>The senior who already read the codebase, the domain, and the awkward names you use for things. Your agent understands what you mean, then reuses what's there instead of rebuilding it.</em>
 </p>
 
 <!-- Static badges: repo is private, so dynamic shields (stars/release/license-from-repo)
@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <sub>An agent skill that keeps a living, navigable <strong>trace</strong> of your codebase — the domain flow over the code structure and patterns — and makes the agent <strong>read it and reuse before it writes</strong>. Works in Claude Code, Cursor, Codex, Copilot, and ~20 other agents.</sub>
+  <sub>An agent skill that keeps a living, navigable <strong>trace</strong> of your codebase — the domain language, business rules, architecture, flow, and reuse patterns — and makes the agent <strong>read it and reuse before it writes</strong>. Works in Claude Code, Cursor, Codex, Copilot, and ~20 other agents.</sub>
 </p>
 
 <p align="center">
@@ -30,9 +30,15 @@
 
 ---
 
-You ask the agent to add a CSV export. It writes a new export module, pulls in a CSV library, and hand-rolls a date picker — none of which it needed, because the repo already has an export pattern, the platform has `<input type="date">`, and a one-line join covers the CSV. It reinvented because it never knew what was already there.
+Most agents can read files. Fewer understand the thing the files are about.
 
-trace-my-code gives the agent that knowledge as a maintained map, and a discipline that makes it look before it builds.
+You ask for a CSV export. A cold agent writes a new export module, pulls in a CSV library, and hand-rolls a date picker. Fine-looking work. Wrong shape. The repo already had an export pattern, the platform already had `<input type="date">`, and a one-line join was enough for the CSV.
+
+That is the obvious failure: rebuilding what already exists.
+
+The quieter, more expensive failure is when the agent does not understand your domain. You say, "tighten the conviction gate so weak-lens cards don't reach compilation," and it treats your vocabulary like fog. It guesses. It invents a nearby-looking mechanism. It ships something plausible and wrong.
+
+trace-my-code gives the agent a maintained map of both: what your system already has, and what your words actually mean. Then it makes the agent use that map before it writes code. Oval glasses optional. The effect is not mystical; it is just what happens when the senior has already read the codebase and remembers the names.
 
 ## Before / after
 
@@ -43,10 +49,10 @@ A real request, phrased the way a domain expert actually says it — full of jar
 **Without the trace** — the agent crawls source to learn what a "card", "lens", "conviction gate", and "compilation" even are, then **builds a new parallel gate** from scratch:
 > read **9 files** · _"I'll add a new `conviction-guard.ts` module…"_ · confidence 4/5
 
-**With the trace** — the agent reads the map, comprehends the jargon, finds the gate that already exists, and **extends it**:
+**With the trace** — the agent reads the map, understands the domain words, finds the gate that already exists, and **extends it**:
 > read **4 files** · _"Rung 2 — extend `completion-guard.ts › evaluateCompletionGuard`; the per-card `confidence` / `sentiment` / `lensMode` it needs are already persisted — no new column. Safety floor: explicit thresholds + one runnable test kept."_ · confidence 5/5
 
-Same request, same model. The trace agent read **56% fewer files**, spent **12% fewer tokens**, finished **20% faster**, and — the part that matters — **reused the existing gate instead of bolting a second one beside it**. (Measured run, n=1; method in [`benchmarks/`](benchmarks/).)
+Same request, same model. The trace agent read **56% fewer files**, spent **12% fewer tokens**, finished **20% faster**, and — the part that matters — **built the right thing by reusing the existing gate instead of bolting a second one beside it**. (Measured run, n=1; method in [`benchmarks/`](benchmarks/).)
 
 Another shape of the same win — a CSV export request, where a cold agent over-builds:
 > **Without:** _"add a `csv-stringify` dependency + a new `ExportService`"_ (a date-picker lib too).
@@ -54,10 +60,10 @@ Another shape of the same win — a CSV export request, where a cold agent over-
 
 ## How it works
 
-Two pieces, and the second only works because of the first:
+Two pieces. The second is what keeps the first from becoming shelfware.
 
-1. **The map** (persistent, kept current). Curated Markdown next to the code: `DOMAIN.md` (the contexts + language), per-module `ARCHITECTURE.md` (the flow, the **patterns & extension points**, the **invariants & absences**, the **external/out-of-repo** systems), and `ADRs` (the _why_). Symbol-anchored citations, Obsidian-vault compatible.
-2. **The discipline** (reuse-first). Before writing code, the agent reads the map and climbs a ladder, stopping at the first rung that holds:
+1. **The map** (persistent, kept current). Curated Markdown next to the code: `DOMAIN.md` (the contexts + language), per-module `ARCHITECTURE.md` (the flow, the **patterns & extension points**, the **invariants & absences**, the **external/out-of-repo** systems), and `ADRs` (the _why_). Symbol-anchored citations, Obsidian-vault compatible. This is where the agent learns that a "card", a "lens", a "gate", and "compilation" are not vibes. They are your system.
+2. **The discipline** (understand-first, reuse-first). Before writing code, the agent reads the map, translates your request into the repo's actual domain and architecture, then climbs a ladder, stopping at the first rung that holds:
 
 ```
 1. Does this need to exist at all?   → no: skip it (YAGNI)
@@ -71,7 +77,7 @@ Two pieces, and the second only works because of the first:
 
 A **safety floor** is never on the chopping block: input validation, error handling that prevents data loss, security, accessibility, and anything explicitly requested. The ladder cuts code, never correctness.
 
-The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from reinventing. Together: the agent plans from a couple of reads, reuses what exists, and fixes shared code once.
+The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from free-associating. Together: the agent understands the request sooner, plans from a couple of reads, reuses what exists, and fixes shared code once.
 
 ## Early signal
 
@@ -101,6 +107,7 @@ Then, in a repo: ask your agent to **"bootstrap the trace"** (Mode 0) to seed `D
 
 ## What you get
 
+- **Domain comprehension** — the agent learns your jargon, concepts, business rules, flows, and architecture before it takes a swing at implementation.
 - **Bootstrap** a first-draft trace on a fresh repo — grounded in code, `_TODO`-flagged where unverified. Never a blank page.
 - **Author / maintain** `DOMAIN.md`, per-module `ARCHITECTURE.md`/`DATA_FLOW.md`, and ADRs, with symbol-anchored citations.
 - **Reuse-first development** — the iron-law'd ladder + safety floor above.
@@ -112,7 +119,7 @@ Full skill reference: [`skills/trace-my-code/README.md`](skills/trace-my-code/RE
 
 ## Design stance
 
-Curated, not extracted. Grounded, not asserted. Surgical, not regenerative. Reversible, not silent. The skill _writes and maintains_ the trace from your code; it never treats an auto-generated graph as the source of truth.
+Curated, not extracted. Grounded, not asserted. Domain-aware, not keyword-matching. Surgical, not regenerative. Reversible, not silent. The skill _writes and maintains_ the trace from your code; it never treats an auto-generated graph as the source of truth.
 
 ## Inspiration
 
