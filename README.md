@@ -104,12 +104,21 @@ _Claude Code (plugin marketplace):_
 /plugin install trace-my-code@trace-my-code
 ```
 
-_Any agent (Claude Code, Cursor, Codex, Copilot, … — detects your installed agents and copies it into each):_
+_Codex (plugin marketplace):_
+
+```bash
+codex plugin marketplace add kgohil/trace-my-code
+# then in codex:  /plugins  →  select trace-my-code  →  install
+```
+
+_Other agents (Cursor, Copilot, Gemini, opencode, … — detects your installed agents and copies the skill into each):_
 
 ```bash
 npx skillfish add kgohil/trace-my-code trace-my-code
 # or:  npx skills add kgohil/trace-my-code --skill trace-my-code
 ```
+
+> **Codex note:** Codex has no `skills/` folder — it only loads **plugins**. The `npx skillfish` route copies the skill into `~/.codex/skills/`, which Codex ignores, so use the `codex plugin marketplace` route above for Codex.
 
 Then, in your repo, you only do two things:
 

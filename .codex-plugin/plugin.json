@@ -1,0 +1,31 @@
+{
+  "name": "trace-my-code",
+  "version": "0.5.0",
+  "description": "An agent skill: curated, self-refreshing architecture + domain docs (Obsidian-format, drift hook) that let a coding agent understand your domain and reuse what already exists instead of rebuilding it.",
+  "author": {
+    "name": "kgohil",
+    "url": "https://github.com/kgohil"
+  },
+  "homepage": "https://github.com/kgohil/trace-my-code",
+  "repository": "https://github.com/kgohil/trace-my-code",
+  "license": "MIT",
+  "keywords": ["architecture", "domain", "documentation", "reuse", "agent-skill", "obsidian"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "trace-my-code",
+    "shortDescription": "Live domain + architecture map for your coding agent",
+    "longDescription": "Keeps a curated, self-refreshing trace of your codebase — domain language, architecture, flow, and reuse patterns — so a coding agent understands what you mean and reuses what already exists instead of rebuilding it.",
+    "developerName": "kgohil",
+    "category": "Productivity",
+    "capabilities": ["Instructions"],
+    "websiteURL": "https://github.com/kgohil/trace-my-code",
+    "defaultPrompt": [
+      "Bootstrap the trace for this repo.",
+      "Plan this feature using the trace (reuse-first).",
+      "Refresh the architecture docs for what changed."
+    ],
+    "brandColor": "#111111",
+    "composerIcon": "./assets/otter-mascot.jpg",
+    "logo": "./assets/otter-mascot.jpg"
+  }
+}
