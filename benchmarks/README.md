@@ -73,6 +73,21 @@ hallucination, stale lines). The discipline (v0.4) is what produced reuse-instea
 and accurate citations. The ladder + floor (v0.5) added over-build avoidance while keeping the
 safety guards.
 
+### One paired run, with token/time telemetry (n=1)
+
+Request: _"tighten the conviction gate so weak-lens cards don't reach compilation"_ (a
+domain-jargon feature). Same model, same task, cold vs trace, sub-agent telemetry:
+
+| Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
+|---|--:|--:|--:|---|:--:|
+| Cold (no trace) | 9 | 127,808 | 118s | wrote a **new** parallel gate | 4/5 |
+| Trace + reuse-first | **4** | **112,226** | **94s** | **extended** `completion-guard.ts › evaluateCompletionGuard` | **5/5** |
+| Δ | −56% | −12% | −20% | reuse, not reinvent | +1 |
+
+Cost scales with tokens, so the ~12% is real spend; the larger win is the cold agent building a
+second gate beside the one that already exists (two thresholds to keep in sync) while the trace
+agent reused it and saw the per-card signals were already persisted (no new column).
+
 ## Reproduce the probe
 
 No runner is committed yet (contributions welcome — port ponytail's `agentic/run.py` shape).
