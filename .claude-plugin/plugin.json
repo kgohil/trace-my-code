@@ -6,5 +6,6 @@
     "name": "kgohil",
     "url": "https://github.com/kgohil"
   },
-  "homepage": "https://github.com/kgohil/trace-my-code"
+  "homepage": "https://github.com/kgohil/trace-my-code",
+  "icon": "./assets/otter-icon.png"
 }
