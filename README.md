@@ -8,6 +8,12 @@
   <sub>An agent skill that keeps a living, navigable <strong>trace</strong> of your codebase — the domain flow over the code structure and patterns — and makes the agent <strong>read it and reuse before it writes</strong>. Works in Claude Code, Cursor, Codex, Copilot, and ~20 other agents.</sub>
 </p>
 
+<p align="center">
+  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a domain-jargon request, analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured: -56% files read, -12% tokens, -20% time.">
+</p>
+
+<p align="center"><sub>Set it up once. Every commit keeps the domain map current; every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
+
 ---
 
 You ask the agent to add a CSV export. It writes a new export module, pulls in a CSV library, and hand-rolls a date picker — none of which it needed, because the repo already has an export pattern, the platform has `<input type="date">`, and a one-line join covers the CSV. It reinvented because it never knew what was already there.
@@ -16,11 +22,21 @@ trace-my-code gives the agent that knowledge as a maintained map, and a discipli
 
 ## Before / after
 
-**Without it** — agent crawls 15–25 files, guesses the flow, and reaches for a blank file:
-> "I'll add a `csv-stringify` dependency and a new `ExportService`…"
+A real request, phrased the way a domain expert actually says it — full of jargon a fresh agent has to decode from scratch:
 
-**With it** — agent reads 2 docs, climbs the reuse ladder, and lands on what exists:
-> "Rung 2 — extend `bias-agent › getProfile`'s auth-scoped query for the endpoint; rung 4 — native `<input type=\"date\">`, no lib; rung 7 — one-line CSV join (no writer in repo). Safety floor: zod date validation + session-id scoping kept."
+> **"Tighten the conviction gate so weak-lens cards don't reach compilation."**
+
+**Without the trace** — the agent crawls source to learn what a "card", "lens", "conviction gate", and "compilation" even are, then **builds a new parallel gate** from scratch:
+> read **9 files** · _"I'll add a new `conviction-guard.ts` module…"_ · confidence 4/5
+
+**With the trace** — the agent reads the map, comprehends the jargon, finds the gate that already exists, and **extends it**:
+> read **4 files** · _"Rung 2 — extend `completion-guard.ts › evaluateCompletionGuard`; the per-card `confidence` / `sentiment` / `lensMode` it needs are already persisted — no new column. Safety floor: explicit thresholds + one runnable test kept."_ · confidence 5/5
+
+Same request, same model. The trace agent read **56% fewer files**, spent **12% fewer tokens**, finished **20% faster**, and — the part that matters — **reused the existing gate instead of bolting a second one beside it**. (Measured run, n=1; method in [`benchmarks/`](benchmarks/).)
+
+Another shape of the same win — a CSV export request, where a cold agent over-builds:
+> **Without:** _"add a `csv-stringify` dependency + a new `ExportService`"_ (a date-picker lib too).
+> **With:** _"rung 4 — native `<input type=\"date\">`, no lib; rung 7 — one-line CSV join; extend the existing export procedure. Validation + auth-scoping kept."_
 
 ## How it works
 
@@ -45,15 +61,17 @@ The map keeps the trace from rotting (a drift hook flags or refreshes docs when 
 
 ## Early signal
 
-Measured on a real monorepo (Next.js + Hono + Prisma), one feature-planning task per run, headless sub-agent, **n=1 per arm — illustrative, not a controlled benchmark** (the harness to produce rigorous numbers is in [`benchmarks/`](benchmarks/)):
+Measured on a real monorepo (Next.js + Hono + Prisma), headless sub-agents, same model and task per pair, **n=1 per arm — illustrative, not a controlled benchmark** (the harness for rigorous numbers is in [`benchmarks/`](benchmarks/)):
 
-| Arm | Source files read to plan | Reinvented? | Over-built? | Citations | Safety floor |
-|---|--:|:--:|:--:|:--:|:--:|
-| No trace (cold crawl) | ~13–25 | — | — | — | — |
-| trace, early version | ~13 | mixed | — | wrong line #s, **wrong vendor** | — |
-| trace + reuse-first (current) | **5–8** | **no** | **no** (chose native over a lib) | symbol-anchored, accurate | **kept** |
+The "tighten the conviction gate" request above, cold vs trace, as actually measured:
 
-The current skill cut the agent's source-file crawl roughly in half, made it **extend an existing function instead of writing a new one** (and find a 4th caller a single grep missed), and stopped it adding a library for something the platform does natively — without dropping a safety guard. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
+| Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
+|---|--:|--:|--:|---|:--:|
+| No trace (cold) | 9 | 127,808 | 118s | **new** parallel gate | 4/5 |
+| trace + reuse-first | **4** | **112,226** | **94s** | **extend** existing gate | **5/5** |
+| **Δ** | **−56%** | **−12%** | **−20%** | reuse, not reinvent | +1 |
+
+Across other tasks the same pattern holds: an earlier map-only version still mis-cited lines and **hallucinated a vendor** (said Langfuse; the repo uses PostHog); the current reuse-first version cites by symbol, finds callers a single grep misses, and chose a native feature over adding a library — without dropping a safety guard. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
 
 ## Install
 
