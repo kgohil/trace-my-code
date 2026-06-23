@@ -17,7 +17,6 @@ set -euo pipefail
 
 MODE="${TRACE_MY_CODE_MODE:-$(git config --get traceMyCode.mode || echo flag)}"
 CLAUDE_BIN="${TRACE_MY_CODE_CLAUDE:-claude}"
-SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="$(git rev-parse --show-toplevel)"
 
 # Range being pushed: compare against the upstream/main merge-base.
