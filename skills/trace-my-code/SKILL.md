@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.5.0"
+    version: "0.6.0"
     phase: understand
 ---
 
@@ -82,10 +82,12 @@ together: no central index, just links between roots. See `references/multi-repo
   the blank page.
 - **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**,
   cite `path:line`, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs.
-- **Mode B — auto-update on drift** (`references/auto-update-contract.md`): the git hook
-  or CI (`hooks/doc-drift.sh`) finds **code** changes in a traced area and either
-  **flags** the affected docs (default, safe) or **rewrites** them — grounded, surgical,
-  landed as a visible revertable commit. Doc-only changes don't flag themselves.
+- **Mode B — auto-update on drift** (`references/auto-update-contract.md`): **bootstrap
+  wires this on by default** (CI workflow if the repo has `.github/`, else a local pre-push
+  hook). It finds **code** changes in a traced area and **rewrites** the affected docs —
+  grounded, surgical — committing to the **working/PR branch** (PR branch in CI, current
+  branch locally), **never directly to `main`**. Degrades to **flag** (warn-only) if no
+  Claude credential is available, or set `TRACE_MY_CODE_MODE=flag` to opt out of auto-commits.
 - **Mode C — reuse-first development** (`references/reuse-first.md`): before writing any
   new code, consult the trace, then climb the reuse ladder — **YAGNI → reuse → extend →
   stdlib → native → installed dep → one line → (only then) minimum new** — while holding

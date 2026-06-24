@@ -1,7 +1,8 @@
-# Optional CI variant of the trace-my-code freshness hook.
-# Copy to .github/workflows/doc-drift.yml. Runs on PRs; in rewrite mode it commits
-# the doc refresh back to the PR branch (no re-push needed). Needs a Claude API
-# credential in repo secrets (ANTHROPIC_API_KEY) for rewrite mode.
+# CI variant of the trace-my-code freshness hook — bootstrap drops this in by default.
+# Runs on PRs; rewrite mode refreshes the affected docs and commits them to the PR branch
+# (reviewed in the PR, never pushed to main). Add ANTHROPIC_API_KEY as a repo secret to
+# enable rewrite; without it, it safely degrades to flag (comment-only). Set
+# TRACE_MY_CODE_MODE: flag below if you want warn-only.
 name: doc-drift
 on:
   pull_request:
@@ -16,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-      - name: Detect doc drift (flag mode by default)
+      - name: Detect doc drift (rewrite by default; degrades to flag without the secret)
         env:
-          # Set to 'rewrite' + provide ANTHROPIC_API_KEY to auto-refresh docs.
-          TRACE_MY_CODE_MODE: flag
+          # rewrite = auto-refresh + commit to the PR branch. Set to 'flag' for warn-only.
+          TRACE_MY_CODE_MODE: rewrite
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           git config user.name  "trace-my-code"
