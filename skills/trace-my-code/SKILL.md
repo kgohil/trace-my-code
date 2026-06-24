@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.6.0"
+    version: "0.7.0"
     phase: understand
 ---
 
@@ -109,6 +109,13 @@ fit_. "I didn't find it in one grep" is not an investigation. The ladder cuts co
 correctness — the safety floor is non-negotiable. Inspired by the "lazy senior dev" ladder
 + safety floor from [ponytail](https://github.com/DietrichGebert/ponytail) (MIT). See
 `references/reuse-first.md` for the gated phases, the ladder, and the red flags that mean STOP.
+
+**On-by-default nudge.** The plugin ships a `UserPromptSubmit` hook
+(`hooks/reuse-first-hooks.json` → `hooks/reuse-first-nudge.sh`) that re-states this rule
+each turn, so it survives long sessions and compaction (a CLAUDE.md routing rule is read
+once and drifts). It's a soft reminder, not a hard gate. It **self-gates** — silent (zero
+tokens) in any repo without a trace — and costs ~100 input tokens/turn where a trace
+exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
 
 ## Guardrails (why the trace stays trustworthy)
 

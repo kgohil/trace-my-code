@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/skills/trace-my-code/hooks/reuse-first-nudge.sh\" 2>/dev/null || exit 0",
+            "timeout": 5,
+            "statusMessage": "trace-my-code: reuse-first reminder"
+          }
+        ]
+      }
+    ]
+  }
+}
