@@ -1,6 +1,6 @@
 {
   "name": "trace-my-code",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "An agent skill: curated, self-refreshing architecture + domain docs (Obsidian-format, drift hook) that let a coding agent understand your domain and reuse what already exists instead of rebuilding it.",
   "author": {
     "name": "kgohil",
@@ -11,6 +11,7 @@
   "license": "MIT",
   "keywords": ["architecture", "domain", "documentation", "reuse", "agent-skill", "obsidian"],
   "skills": "./skills/",
+  "hooks": "./skills/trace-my-code/hooks/reuse-first-hooks.json",
   "icon": "./assets/otter-icon.png",
   "interface": {
     "displayName": "trace-my-code",

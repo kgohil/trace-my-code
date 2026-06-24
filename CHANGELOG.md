@@ -4,6 +4,19 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
+## [0.7.0] - 2026-06-24
+
+### Added
+
+- **Reuse-first nudge, on by default.** The plugin now ships a `UserPromptSubmit` hook
+  (`hooks/reuse-first-hooks.json` → `hooks/reuse-first-nudge.sh`, wired in both
+  `.claude-plugin` and `.codex-plugin`) that re-states the reuse-first contract each turn —
+  so it survives long sessions and compaction where a CLAUDE.md routing rule (read once)
+  drifts. It's a soft reminder, not a hard gate. **Self-gating:** silent (zero tokens) in
+  any repo without a trace; ~100 input tokens/turn where one exists. Opt out with
+  `TRACE_MY_CODE_NUDGE=off`. Makes trace-my-code a whole package out of the box — the
+  reuse-first behavior is active without a manual routing-rule step.
+
 ## [0.6.0] - 2026-06-23
 
 ### Changed
