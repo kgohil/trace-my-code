@@ -29,6 +29,21 @@
 
 ---
 
+## TL;DR
+
+**Your coding agent reads ~2 docs instead of crawling 25 files, reuses what already exists, and builds the right thing.** trace-my-code keeps a living map of your codebase — its domain language, architecture, and patterns — and makes the agent read it before it writes. Same task on a real monorepo, with vs without it: **−56% files read, −12% tokens, −20% wall time** — and it extended the existing code instead of bolting on a parallel copy.
+
+**What it gives you**
+
+- **A living map of your codebase** — `DOMAIN.md` + per-module `ARCHITECTURE.md` + ADRs; symbol-anchored, opens as an Obsidian graph.
+- **Reuse-first, on by default** — the agent climbs a ladder (reuse → extend → stdlib → native → … → minimum new) instead of reinventing what's already there.
+- **Self-maintaining** — a drift hook refreshes the docs on every change, so the map can't rot.
+- **Works in any agent** — Claude Code, Cursor, Codex, Gemini CLI, and ~20 more.
+
+[How it works ↓](#how-it-works) · [See the numbers ↓](#early-signal) · [Set it up ↓](#setup--one-step-then-it-runs-itself)
+
+## The problem it solves
+
 Most agents can read files. Fewer understand the thing the files are about.
 
 You ask for a CSV export. A cold agent writes a new export module, pulls in a CSV library, and hand-rolls a date picker. Fine-looking work. Wrong shape. The repo already had an export pattern, the platform already had `<input type="date">`, and a one-line join was enough for the CSV.
@@ -129,7 +144,7 @@ Then, in your repo, you do **one thing**:
 
 From then on it's automatic: **every change refreshes the trace, and every feature request reads it.** You write code; the map maintains itself.
 
-## What you get
+## In the box (full detail)
 
 - **Domain comprehension** — the agent learns your jargon, concepts, business rules, flows, and architecture before it takes a swing at implementation.
 - **Bootstrap** a first-draft trace on a fresh repo — grounded in code, `_TODO`-flagged where unverified. Never a blank page.
