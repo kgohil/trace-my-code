@@ -1,7 +1,13 @@
 # Install — trace-my-code
 
 The skill itself works as soon as it's in a skills dir (`/trace-my-code`, or auto-invoked
-by description). The optional **freshness hook** is what you wire below.
+by description).
+
+> **You usually don't need this page.** Running **Mode 0 bootstrap** wires the freshness
+> hook for you (CI workflow if the repo has `.github/`, else a local pre-push hook),
+> defaulting to **rewrite** committing to the working/PR branch — never `main`. The steps
+> below are the manual override: change the mode, pick a different wiring, or set it up
+> without re-bootstrapping.
 
 ## 1. Pick a mode
 

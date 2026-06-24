@@ -40,6 +40,20 @@ not trusted output — ground what you can, flag the rest.
    pattern that's clearly deliberate. Status `proposed`; fill Context/Decision from
    code; leave Consequences/gotchas as `_TODO: confirm_` for a human.
 4. **Routing rule** into `CLAUDE.md`/`AGENTS.md` (see `references/routing-rule.md`).
+5. **Wire the drift hook — on by default.** Don't leave the freshness loop as a manual
+   step; turn it on now so the trace stays current without anyone remembering to. Pick by
+   what the repo already has, default mode **rewrite** (auto-refresh + commit), always on a
+   **non-`main` branch**:
+   - **Repo has `.github/`** → copy `hooks/doc-drift.yml.example` to
+     `.github/workflows/doc-drift.yml`. On each PR it refreshes the affected docs and
+     commits them **to the PR branch** (reviewed in the PR; never pushed to `main`).
+     Tell the user: add `ANTHROPIC_API_KEY` as a repo secret to enable rewrite — without
+     it the workflow safely degrades to flag (comment-only).
+   - **No CI** → wire the local pre-push hook (`hooks/doc-drift.sh`) via lefthook/husky/
+     plain git (see `install.md`). Rewrite commits the refresh **to the current branch**
+     and aborts the push so you review (`git show HEAD`) and push again.
+   Either way, auto-commits land on the working/PR branch, never directly on `main` — that
+   stays human/PR-gated. A user who wants warn-only sets `TRACE_MY_CODE_MODE=flag`.
 
 ## Step 3 — discipline
 

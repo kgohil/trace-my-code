@@ -92,7 +92,7 @@ The "tighten the conviction gate" request above, cold vs trace, as actually meas
 
 Across other tasks the same pattern holds: an earlier map-only version still mis-cited lines and **hallucinated a vendor** (said Langfuse; the repo uses PostHog); the current reuse-first version cites by symbol, finds callers a single grep misses, and chose a native feature over adding a library — without dropping a safety guard. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
 
-## Setup — two steps, then it runs itself
+## Setup — one step, then it runs itself
 
 **0. Install the skill.**
 
@@ -121,17 +121,13 @@ codex plugin marketplace add kgohil/trace-my-code
 
 > **Why Codex is separate:** Codex has no skills folder — it only loads **plugins**, so the cross-agent installers above don't reach it (they'd copy into `~/.codex/skills/`, which Codex ignores). The plugin route is the only one that works for Codex. Every other agent is covered by the single command above.
 
-Then, in your repo, you only do two things:
+Then, in your repo, you do **one thing**:
 
-**1. Run `/trace-my-code`** → it bootstraps the trace (Mode 0): `DOMAIN.md` + per-module `ARCHITECTURE.md` + seed ADRs, grounded in your code. Curate the `_TODO` markers it leaves.
+**Run `/trace-my-code`** → it bootstraps the trace (Mode 0): `DOMAIN.md` + per-module `ARCHITECTURE.md` + seed ADRs, grounded in your code — **and wires the freshness hook for you** (a CI workflow if the repo has `.github/`, else a local pre-push hook). Curate the `_TODO` markers it leaves.
 
-**2. Wire the drift hook** so the trace stays current on its own — pick one:
-- **Local git hook** — `post-commit` (or `pre-push`) that runs the drift check on each commit.
-- **CI workflow** — runs on merge to your main branch.
+**That's it.** The drift hook is **on by default** in **rewrite** mode: when code in a traced area changes, it refreshes the affected docs and commits them to the **working/PR branch** (PR branch in CI, current branch locally) — **never directly to `main`**. No Claude credential in CI? It degrades to **flag** (a PR comment). Want warn-only everywhere? Set `TRACE_MY_CODE_MODE=flag`. Details + manual override: [`install.md`](skills/trace-my-code/install.md).
 
-Both ship with the skill: [`hooks/doc-drift.sh`](skills/trace-my-code/hooks/doc-drift.sh) + the CI variant [`hooks/doc-drift.yml.example`](skills/trace-my-code/hooks/doc-drift.yml.example). Wiring instructions: [`install.md`](skills/trace-my-code/install.md). Set `flag` (safe default, just warns) or `rewrite` (auto-refreshes the docs in a visible, revertable commit).
-
-**That's it.** From then on it's automatic: **every commit/merge refreshes the trace, and every feature request reads it.** You write code; the map maintains itself.
+From then on it's automatic: **every change refreshes the trace, and every feature request reads it.** You write code; the map maintains itself.
 
 ## What you get
 

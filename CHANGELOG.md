@@ -4,6 +4,18 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
+## [0.6.0] - 2026-06-23
+
+### Changed
+
+- **Drift auto-update is now on by default.** Mode 0 bootstrap wires the freshness hook
+  automatically — a CI workflow (`doc-drift.yml`) if the repo has `.github/`, otherwise a
+  local pre-push hook — instead of leaving it as a manual `install.md` step. Default mode
+  is now **rewrite** (auto-refresh + commit), committing to the **working/PR branch** (PR
+  branch in CI, current branch locally), **never directly to `main`**. Degrades to **flag**
+  (warn-only) when no Claude credential is present; set `TRACE_MY_CODE_MODE=flag` to opt out.
+- The self-documenting loop is live after onboarding, not after a second manual setup.
+
 ## [0.5.0] - 2026-06-22
 
 First tagged release. trace-my-code is a portable agent skill that keeps a living
