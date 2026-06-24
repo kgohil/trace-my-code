@@ -1,0 +1,10 @@
+# Keep CI GitHub Actions patched. Dependabot security updates handle CVEs;
+# this also picks up routine version bumps for the actions used in ci.yml.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"

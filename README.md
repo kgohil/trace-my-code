@@ -25,7 +25,7 @@
   <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a domain-jargon request, analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured: -56% files read, -12% tokens, -20% time.">
 </p>
 
-<p align="center"><sub>Set it up once. Every commit keeps the domain map current; every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
+<p align="center"><sub>A self-improving <strong>agentic loop</strong>: set it up once, every commit keeps the domain map current, every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
 
 ---
 
@@ -91,7 +91,7 @@ Two pieces. The second is what keeps the first from becoming shelfware.
 
 A **safety floor** is never on the chopping block: input validation, error handling that prevents data loss, security, accessibility, and anything explicitly requested. The ladder cuts code, never correctness.
 
-The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from free-associating. Together: the agent understands the request sooner, plans from a couple of reads, reuses what exists, and fixes shared code once.
+The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from free-associating. Together they close an **agentic loop** — commit → the trace refreshes itself → the agent reads it → ships the right change → which feeds the next commit — so the agent understands the request sooner, plans from a couple of reads, reuses what exists, and fixes shared code once.
 
 ## Early signal
 
