@@ -70,7 +70,9 @@ while IFS= read -r line; do
   path="${inner%% › *}"; sym="${inner##* › }"
   case "$path" in *"<"*|*"*"*|*" "*|"path"|"…") continue;; esac
   CIT=$((CIT+1))
-  sym="$(printf '%s' "$sym" | sed 's/(.*//' | tr -cd '[:alnum:]_')"
+  # match the LAST identifier of the symbol — handles member access like
+  # `RootState.selectedModel` or `scripts.build` (the bare member is what's grep-able).
+  sym="$(printf '%s' "$sym" | sed 's/(.*//' | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | tail -1)"
   if [ "${path: -1}" = "/" ]; then
     [ -d "$path" ] && CIT_OK=$((CIT_OK+1)) || BROKEN+=("$doc: $cite (dir missing)"); continue
   fi
