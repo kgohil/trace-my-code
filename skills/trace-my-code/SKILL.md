@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.7.0"
+    version: "0.8.0"
     phase: understand
 ---
 
@@ -45,6 +45,14 @@ applied here to a codebase instead of a research corpus.
   front makes large refactors safe; you change with the contract in view.
 - **Always current** — a drift check (git hook or CI) flags or refreshes the trace
   when the code it describes changes, so it never quietly rots into a lie.
+
+**Proven on a real repo.** Bootstrapped on a ~100k-line Next.js app, the trace measured (via
+the bundled `trace-stats`, below) at **~22× cheaper context per area** — ~3.7k tokens to read
+an area's doc vs ~81k to crawl its code — with **92% citation accuracy** across 237 citations.
+In the same session an agent built, tested, and shipped a brand-new tool reading **only** the
+trace in its planning phase (its words: _"Phase 0 genuinely replaced crawling… the trace gave
+me everything"_), passed 14/14 tests, and the pipeline caught a real bug a blind crawl would
+have shipped. The cost is one-time and durable; a crawl is re-paid on every task.
 
 ## The trace (what gets written)
 
@@ -82,6 +90,9 @@ together: no central index, just links between roots. See `references/multi-repo
   the blank page.
 - **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**,
   cite `path:line`, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs.
+  **Harvest what was missing:** after a task, fold back the gotcha you hit or the pattern you
+  had to re-derive — the trace's _experience-truth_, kept current the way the drift hook keeps
+  its _code-truth_ current (the `#`-key reflex, applied to architecture docs).
 - **Mode B — auto-update on drift** (`references/auto-update-contract.md`): **bootstrap
   wires this on by default** (CI workflow if the repo has `.github/`, else a local pre-push
   hook). It finds **code** changes in a traced area and **rewrites** the affected docs —
@@ -117,6 +128,33 @@ once and drifts). It's a soft reminder, not a hard gate. It **self-gates** — s
 tokens) in any repo without a trace — and costs ~100 input tokens/turn where a trace
 exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
 
+## Measuring effectiveness (`trace-stats`)
+
+Is the trace earning its keep? Run the bundled meter — the `/ctx-stats` analog — from any repo
+root (pure bash + git, reads only):
+
+```
+bash hooks/trace-stats.sh              # the report
+bash hooks/trace-stats.sh --citations  # also list every broken citation
+bash hooks/trace-stats.sh --json       # machine-readable summary
+```
+
+It reports six things:
+
+- **Coverage** — areas with an `ARCHITECTURE.md` vs significant source dirs.
+- **Map compression** — trace tokens vs codebase tokens (proof you're reading the map, not the
+  territory).
+- **Citation health** — how many `` `path › symbol` `` citations still resolve. This is the
+  grounding metric; the drift hook protects it, `trace-stats` scores it.
+- **Freshness** — Mode-B auto-refresh commits + open `_TODO: confirm_` curation debt.
+- **Quality grade** — a claude-md-style **A–F** over citation accuracy, currency, conciseness,
+  and gotcha coverage, so "is the trace any good?" gets a number, not a vibe.
+- **Estimated savings** — tokens to read an area's doc vs crawl its code, per task.
+
+A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); curating those markers
+and fixing broken citations is what moves it toward **A**. Track the grade over time — it's the
+single number that tells you whether the trace is an asset or rotting into a lie.
+
 ## Guardrails (why the trace stays trustworthy)
 
 - **Curated, not extracted.** The agent _writes_ the trace from code; it never trusts an
@@ -132,3 +170,7 @@ exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
   revertable commit — never a silent whole-file rewrite.
 - **Hierarchical + linked.** Files mirror the code tree and link across areas (and across
   repos), so context stays navigable as the system grows.
+- **Terse, and only the non-obvious.** The doc is the agent's prompt, so brevity is cost: one
+  line per concept; capture flow, gotchas, invariants, and the _why_, and never restate what the
+  code already makes plain (claude-md discipline). `trace-stats` grades conciseness + currency,
+  so this stays measurable, not aspirational.

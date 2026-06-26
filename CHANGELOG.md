@@ -4,6 +4,29 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
+## [0.8.0] - 2026-06-26
+
+### Added
+
+- **`trace-stats` — effectiveness meter** (`hooks/trace-stats.sh`, the `/ctx-stats` analog).
+  Reports coverage, map compression (trace tokens vs codebase tokens), citation health (how many
+  `path › symbol` citations still resolve), freshness (drift-hook auto-refreshes + open `_TODO_`
+  debt), a claude-md-style **A–F quality grade**, and estimated tokens saved per task. `--json`
+  for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only. Turns "is the trace any
+  good?" into a number you watch move toward A.
+- **Real-repo benchmark.** `benchmarks/` now leads with measured `trace-stats` numbers from a
+  ~100k-line app (1:55 map→code compression, 92% citation accuracy, ~22× cheaper context per area)
+  plus a near-controlled "agent ships a new tool reading only the trace" result.
+
+### Changed
+
+- **SKILL.md** documents the effectiveness meter and the proven-on-a-real-repo benefits.
+- **Authoring discipline** folds in `/claude-md-improver` + `revise-claude-md` learnings: terse,
+  document only the non-obvious (one line per concept; skip the obvious), and a Mode-A "harvest
+  what was missing" reflection trigger (the `#`-key reflex applied to architecture docs).
+- **benchmarks/README** swaps opaque private-project anecdotes for the `trace-stats` meter and the
+  real-session numbers; keeps the controlled cold-vs-trace A/B (generalized).
+
 ## [0.7.0] - 2026-06-24
 
 ### Added

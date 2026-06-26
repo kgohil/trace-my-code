@@ -58,3 +58,16 @@ markers and curate before trusting it.
 
 After that, Mode A handles edits and the drift hook keeps everything fresh. As the docs
 grow, the skill splits oversized files behind an index (see `references/doc-splitting.md`).
+
+## 5. Measure effectiveness (any time)
+
+Run the bundled meter — the `/ctx-stats` analog — to see whether the trace is earning its keep:
+
+```bash
+bash hooks/trace-stats.sh          # coverage, compression, citation health, grade, est. savings
+bash hooks/trace-stats.sh --json   # machine-readable, for CI
+```
+
+A fresh bootstrap grades around **C** (structure solid, `_TODO_`s open); curating those markers
+and fixing broken citations is what moves it toward **A**. Watch the grade — it's the one number
+that says whether the trace is an asset or rotting into a lie.

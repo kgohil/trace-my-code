@@ -54,39 +54,58 @@ The seed task set is in [`tasks.md`](tasks.md): a mix of **build** tasks (each w
 flow + citation accuracy). Add your repo's own tasks; the trap is only a trap if the repo
 really has the thing to reuse.
 
-## Results so far (honest)
+## Measure it in one command: `trace-stats`
 
-Run on a real monorepo (Next.js + Hono + Prisma + Trigger.dev), method (3) above, one task
-per run, headless sub-agent, **n=1 per arm**. This is **early signal, not a controlled
-benchmark** — single runs, one repo, self-reported counts. Treat directionally; the harness
-above is what turns it into a defensible number.
+You don't need a full harness for a daily read — the skill ships an effectiveness meter, the
+`/ctx-stats` analog. From any repo with a trace:
 
-| Arm | Source files read | Reinvented? | Over-built? | Citations | Safety floor |
-|---|--:|:--:|:--:|:--:|:--:|
-| Cold (no trace) | ~13–25 | — | — | — | — |
-| Trace, v0.3 (map only) | ~13 | mixed | — | wrong line #s; **hallucinated vendor** (said Langfuse; real PostHog) | — |
-| Trace + Mode C, v0.4 | **5** | **no** (extended `createCardsFromPlaybook`; found a 4th caller a grep missed) | — | symbol-anchored, accurate | — |
-| Trace + ladder + floor, v0.5 | **8** | **no** | **no** (native `<input type="date">`, rejected a date-picker lib; one-line CSV, rejected a CSV lib) | symbol-anchored | **kept** (zod date validation, session-id scoping, a11y labels) |
+```
+bash skills/trace-my-code/hooks/trace-stats.sh         # report
+bash skills/trace-my-code/hooks/trace-stats.sh --json  # for CI
+```
 
-Reading it: the map alone (v0.3) cut the crawl but still let the agent guess wrong (vendor
-hallucination, stale lines). The discipline (v0.4) is what produced reuse-instead-of-reinvent
-and accurate citations. The ladder + floor (v0.5) added over-build avoidance while keeping the
-safety guards.
+It prints coverage, **map compression** (trace tokens vs codebase tokens), **citation health**
+(how many `path › symbol` citations still resolve), **freshness** (drift-hook auto-refreshes +
+open `_TODO_` debt), a claude-md-style **A–F quality grade**, and **estimated tokens saved per
+task** — turning "is the trace any good?" into a number you watch move toward A as you curate.
 
-### One paired run, with token/time telemetry (n=1)
+## Real result: a full feature session
 
-Request: _"tighten the conviction gate so weak-lens cards don't reach compilation"_ (a
-domain-jargon feature). Same model, same task, cold vs trace, sub-agent telemetry:
+Run on a ~100k-line Next.js multi-tool app — bootstrapped trace, one working session that added
+two tools, repaired a red test suite, ran SEO, and upgraded a scaffolding command, **every task
+planned from the trace**. `trace-stats` on that repo:
+
+| Metric | Value |
+|---|---|
+| Map compression | trace **41k tok** : codebase **2.28M tok** → **1 : 55** |
+| Coverage | 11 / 28 significant dirs (39%) — the meaningful areas, not the generated bulk |
+| Citation health | 237 citations, **92% resolve** |
+| Quality grade | **75 / 100 (C)** — structure solid, 58 `_TODO_`s left to curate |
+| Est. savings | ~**3.7k** tok to read an area's doc vs ~**81k** to crawl it → **~22× cheaper** |
+
+The near-controlled point inside that session: an agent built, tested, and shipped a **new tool**
+on a trace-driven pipeline, reading **only** the trace in its planning phase. Its own words:
+_"Phase 0 genuinely replaced crawling… the trace docs gave me everything."_ It passed 14/14
+tests and the pipeline caught a real type bug — the kind a blind crawl ships.
+
+## Controlled A/B (paired, real agent telemetry, n=1)
+
+Same model, same task, cold vs trace, on a private repo (a domain-jargon feature). The cleanest
+comparison — identical prompt, the only variable is the trace:
 
 | Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
 |---|--:|--:|--:|---|:--:|
 | Cold (no trace) | 9 | 127,808 | 118s | wrote a **new** parallel gate | 4/5 |
-| Trace + reuse-first | **4** | **112,226** | **94s** | **extended** `completion-guard.ts › evaluateCompletionGuard` | **5/5** |
-| Δ | −56% | −12% | −20% | reuse, not reinvent | +1 |
+| Trace + reuse-first | **4** | **112,226** | **94s** | **extended** the existing guard | **5/5** |
+| Δ | **−56%** | **−12%** | **−20%** | reuse, not reinvent | +1 |
 
-Cost scales with tokens, so the ~12% is real spend; the larger win is the cold agent building a
-second gate beside the one that already exists (two thresholds to keep in sync) while the trace
-agent reused it and saw the per-card signals were already persisted (no new column).
+The token delta is real spend; the bigger win is the cold agent building a second gate beside the
+one that already exists (two thresholds to keep in sync) while the trace agent reused it.
+
+**The caveat worth repeating:** the *map alone* cuts the crawl but still lets an agent guess
+wrong — an early run hallucinated a vendor (said Langfuse; real was PostHog) and cited stale line
+numbers. The **discipline** fixes it: symbol-anchored citations, vendors named only from the
+import, the reuse ladder. Map **and** discipline, not map alone — and `trace-stats` scores both.
 
 ## Reproduce the probe
 
