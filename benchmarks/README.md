@@ -103,6 +103,12 @@ Both arms reached the same correct plan, so here the win is **pure efficiency** 
 read a quarter of the files and finished in half the time for the same answer. The trace doesn't
 make a well-structured repo's pattern *more* discoverable; it makes discovering it far cheaper.
 
+The token column is **−15% total**, much smaller than the −76% files — because the agent's total
+is mostly arm-independent: a large fixed input (system prompt + tool schemas) plus a ~constant
+output (the plan). The trace cuts the **variable input** (files read); that delta is real but
+diluted in the total. The harness reports only total `subagent_tokens`, so **files read** is the
+cleaner proxy for the context saving.
+
 Where the domain is opaque, the trace also buys **correctness**. A separate private-repo run
 (a domain-jargon feature) had the cold agent build a **new parallel gate** (9 files, 127,808
 tokens, 118s) while the trace agent **extended** the existing one (4 files, 112,226 tokens, 94s) —

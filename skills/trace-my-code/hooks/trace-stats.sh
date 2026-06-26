@@ -145,8 +145,9 @@ echo "CONTEXT FOOTPRINT   (loading one area)"
 echo "  the map           ~$(comma "$AREA_DOC_TOK") tok / area doc"
 echo "  its code          ~$(comma "$AREA_CODE_TOK") tok / area   (the map is ~${SAVE_X}× smaller)"
 echo "  ↳ ceiling, not a per-task saving: a capable agent greps rather than loading an area whole,"
-echo "    so measured cold-vs-trace token deltas are smaller (~-15%). Files read & time are the"
-echo "    robust wins (paired runs: ~-76% files, ~-45% time)."
+echo "    so measured cold-vs-trace TOTAL-token deltas are smaller (~-15%) — diluted by fixed"
+echo "    prompt overhead + ~constant output. Files read is the cleaner proxy for the context"
+echo "    saving (paired runs: ~-76% files, ~-45% time)."
 if [ "$LIST_CITATIONS" -eq 1 ] && [ ${#BROKEN[@]} -gt 0 ]; then
   echo; echo "BROKEN CITATIONS"; printf '  ! %s\n' "${BROKEN[@]}"
 fi
