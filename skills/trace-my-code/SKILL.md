@@ -47,8 +47,11 @@ applied here to a codebase instead of a research corpus.
   when the code it describes changes, so it never quietly rots into a lie.
 
 **Proven on a real repo.** Bootstrapped on a ~100k-line Next.js app, the trace measured (via
-the bundled `trace-stats`, below) at **~22× cheaper context per area** — ~3.7k tokens to read
-an area's doc vs ~81k to crawl its code — with **92% citation accuracy** across 237 citations.
+the bundled `trace-stats`, below) with a per-area doc **~22× smaller** than the code it covers
+(~3.7k vs ~81k tokens — it fits in context where the code doesn't) and **92% citation accuracy**
+across 237 citations. On a like-for-like task, cold vs trace, the trace agent read **~76% fewer
+files** and finished **~45% faster** (the raw token delta is smaller, ~−15%, since fixed
+per-agent overhead dominates — files read and time are the robust wins).
 In the same session an agent built, tested, and shipped a brand-new tool reading **only** the
 trace in its planning phase (its words: _"Phase 0 genuinely replaced crawling… the trace gave
 me everything"_), passed 14/14 tests, and the pipeline caught a real bug a blind crawl would
@@ -149,7 +152,9 @@ It reports six things:
 - **Freshness** — Mode-B auto-refresh commits + open `_TODO: confirm_` curation debt.
 - **Quality grade** — a claude-md-style **A–F** over citation accuracy, currency, conciseness,
   and gotcha coverage, so "is the trace any good?" gets a number, not a vibe.
-- **Estimated savings** — tokens to read an area's doc vs crawl its code, per task.
+- **Context footprint** — how much smaller an area's doc is than its code (compression — it fits
+  in context where the code doesn't). Not a per-task token bill: a capable agent greps rather than
+  loading an area whole, so measured token deltas are smaller; files-read and time are the robust wins.
 
 A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); curating those markers
 and fixing broken citations is what moves it toward **A**. Track the grade over time — it's the

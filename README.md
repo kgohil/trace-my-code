@@ -101,9 +101,11 @@ Two kinds of evidence: a meter you run on your own repo, and a controlled A/B.
 
 The skill ships an effectiveness meter (the `/ctx-stats` analog). On a ~100k-line Next.js app, one working session that added two tools, repaired a red test suite, ran SEO, and upgraded a scaffolding command — **every task planned from the trace** — it reports:
 
-| trace : code | citation accuracy | context per area | quality grade |
+| trace : code | citation accuracy | map vs area code | quality grade |
 |---|---|---|---|
-| **1 : 55** compression | **92%** of 237 citations resolve | ~3.7k read vs ~81k crawl → **~22× cheaper** | **C / 75** (TODOs left to curate) |
+| **1 : 55** compression | **92%** of 237 citations resolve | ~3.7k vs ~81k → **map ~22× smaller** | **C / 75** (TODOs left to curate) |
+
+> **Compression ≠ a per-task token bill.** The 22× / 55× is how much *smaller* the map is than the code — which is why the map fits in context where the code doesn't. It is **not** the measured token saving: a capable agent greps rather than loading an area whole, so the real cold-vs-trace token delta is **−15%** (the A/B below). The robust, measured wins are **files read (−76%)** and **time (−45%)**.
 
 In that session an agent built, tested, and shipped a **brand-new tool** reading **only** the trace in its planning phase — its words, _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Run it on yours: `bash skills/trace-my-code/hooks/trace-stats.sh`.
 

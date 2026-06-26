@@ -81,7 +81,7 @@ planned from the trace**. `trace-stats` on that repo:
 | Coverage | 11 / 28 significant dirs (39%) — the meaningful areas, not the generated bulk |
 | Citation health | 237 citations, **92% resolve** |
 | Quality grade | **75 / 100 (C)** — structure solid, 58 `_TODO_`s left to curate |
-| Est. savings | ~**3.7k** tok to read an area's doc vs ~**81k** to crawl it → **~22× cheaper** |
+| Map vs area code | ~**3.7k** tok / area doc vs ~**81k** / area → **map ~22× smaller** (compression — *not* a per-task token bill; the measured agent delta is −15%, see the A/B) |
 
 The near-controlled point inside that session: an agent built, tested, and shipped a **new tool**
 on a trace-driven pipeline, reading **only** the trace in its planning phase. Its own words:

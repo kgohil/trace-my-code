@@ -141,9 +141,12 @@ echo "  conciseness       [$(bar "$CONCISE_PCT")] ${CONCISE_PCT}%   ($OVERSIZE o
 echo "  gotcha coverage   [$(bar "$GOTCHA_PCT")] ${GOTCHA_PCT}%"
 echo "  ── overall        ${SCORE}/100  ($GRADE)"
 echo
-echo "ESTIMATED SAVINGS"
-echo "  per traced area   ~$(comma "$AREA_DOC_TOK") tok to read the doc  vs  ~$(comma "$AREA_CODE_TOK") tok to crawl the code"
-echo "  ≈ $(comma "$SAVE") tokens saved per task   (~${SAVE_X}× cheaper context)"
+echo "CONTEXT FOOTPRINT   (loading one area)"
+echo "  the map           ~$(comma "$AREA_DOC_TOK") tok / area doc"
+echo "  its code          ~$(comma "$AREA_CODE_TOK") tok / area   (the map is ~${SAVE_X}× smaller)"
+echo "  ↳ ceiling, not a per-task saving: a capable agent greps rather than loading an area whole,"
+echo "    so measured cold-vs-trace token deltas are smaller (~-15%). Files read & time are the"
+echo "    robust wins (paired runs: ~-76% files, ~-45% time)."
 if [ "$LIST_CITATIONS" -eq 1 ] && [ ${#BROKEN[@]} -gt 0 ]; then
   echo; echo "BROKEN CITATIONS"; printf '  ! %s\n' "${BROKEN[@]}"
 fi
