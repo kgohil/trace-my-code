@@ -107,17 +107,17 @@ The skill ships an effectiveness meter (the `/ctx-stats` analog). On a ~100k-lin
 
 In that session an agent built, tested, and shipped a **brand-new tool** reading **only** the trace in its planning phase — its words, _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Run it on yours: `bash skills/trace-my-code/hooks/trace-stats.sh`.
 
-### Controlled A/B — cold vs trace (n=1)
+### Controlled A/B — cold vs trace (same repo as above, n=1)
 
-Same model, same task, a domain-jargon feature on a private repo. The only variable is the trace:
+Same model, same planning task on that repo — _"plan adding a UUID Generator tool"_ — the only variable is whether the agent could read the trace:
 
-| Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
-|---|--:|--:|--:|---|:--:|
-| No trace (cold) | 9 | 127,808 | 118s | **new** parallel gate | 4/5 |
-| trace + reuse-first | **4** | **112,226** | **94s** | **extend** existing gate | **5/5** |
-| **Δ** | **−56%** | **−12%** | **−20%** | reuse, not reinvent | +1 |
+| Arm | Files read | Agent tokens | Wall time | Plan |
+|---|--:|--:|--:|:--|
+| No trace (cold) | 17 | 99,402 | 70s | correct — but crawled 17 files to re-derive the pattern |
+| trace + reuse-first | **4** | **84,148** | **38s** | correct — read the trace, same plan |
+| **Δ** | **−76%** | **−15%** | **−45%** | identical plan, far less work |
 
-The caveat worth repeating: the *map alone* cuts the crawl but still lets an agent guess wrong — an earlier map-only version **hallucinated a vendor** (said Langfuse; the repo uses PostHog) and mis-cited lines. The **discipline** fixes it: symbol-anchored citations, vendors named only from the import, the reuse ladder. Map **and** discipline — and `trace-stats` scores both. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
+Both reached the *same* correct plan (copy `password-generator`; create 4 files, modify 3) — so here the trace's win is pure **efficiency**: −76% fewer files read, −45% faster, for the same answer. Where the domain is more opaque, it also prevents wrong-pattern guesses — an earlier private-repo run had the cold agent build a **new parallel gate** while the trace agent **extended** the existing one, and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog). Map **and** discipline — and `trace-stats` scores both. Full method: [`benchmarks/`](benchmarks/).
 
 ## Setup — one step, then it runs itself
 

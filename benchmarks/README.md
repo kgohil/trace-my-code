@@ -88,24 +88,27 @@ on a trace-driven pipeline, reading **only** the trace in its planning phase. It
 _"Phase 0 genuinely replaced crawling… the trace docs gave me everything."_ It passed 14/14
 tests and the pipeline caught a real type bug — the kind a blind crawl ships.
 
-## Controlled A/B (paired, real agent telemetry, n=1)
+## Controlled A/B — cold vs trace (n=1)
 
-Same model, same task, cold vs trace, on a private repo (a domain-jargon feature). The cleanest
-comparison — identical prompt, the only variable is the trace:
+Same model, same planning task — _"plan adding a UUID Generator tool"_ — on the **same repo as the
+real result above**, with vs without the trace:
 
-| Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
-|---|--:|--:|--:|---|:--:|
-| Cold (no trace) | 9 | 127,808 | 118s | wrote a **new** parallel gate | 4/5 |
-| Trace + reuse-first | **4** | **112,226** | **94s** | **extended** the existing guard | **5/5** |
-| Δ | **−56%** | **−12%** | **−20%** | reuse, not reinvent | +1 |
+| Arm | Files read | Agent tokens | Wall time | Plan |
+|---|--:|--:|--:|:--|
+| Cold (no trace) | 17 | 99,402 | 70s | correct — crawled 17 files to re-derive the two-tier pattern |
+| Trace + reuse-first | **4** | **84,148** | **38s** | correct — read the trace, same plan |
+| Δ | **−76%** | **−15%** | **−45%** | identical plan (copy `password-generator`; 4 new, 3 modified) |
 
-The token delta is real spend; the bigger win is the cold agent building a second gate beside the
-one that already exists (two thresholds to keep in sync) while the trace agent reused it.
+Both arms reached the same correct plan, so here the win is **pure efficiency** — the trace agent
+read a quarter of the files and finished in half the time for the same answer. The trace doesn't
+make a well-structured repo's pattern *more* discoverable; it makes discovering it far cheaper.
 
-**The caveat worth repeating:** the *map alone* cuts the crawl but still lets an agent guess
-wrong — an early run hallucinated a vendor (said Langfuse; real was PostHog) and cited stale line
-numbers. The **discipline** fixes it: symbol-anchored citations, vendors named only from the
-import, the reuse ladder. Map **and** discipline, not map alone — and `trace-stats` scores both.
+Where the domain is opaque, the trace also buys **correctness**. A separate private-repo run
+(a domain-jargon feature) had the cold agent build a **new parallel gate** (9 files, 127,808
+tokens, 118s) while the trace agent **extended** the existing one (4 files, 112,226 tokens, 94s) —
+and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog) and
+cited stale lines. The **discipline** fixes that: symbol-anchored citations, vendors named only
+from the import, the reuse ladder. Map **and** discipline — and `trace-stats` scores both.
 
 ## Reproduce the probe
 
