@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a domain-jargon request, analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured: -56% files read, -12% tokens, -20% time.">
+  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a request such as 'add a hash-generator tool to the app', analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured: -56% files read, ~22x cheaper context, 92% citations resolve.">
 </p>
 
 <p align="center"><sub>A self-improving <strong>agentic loop</strong>: set it up once, every commit keeps the domain map current, every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
@@ -95,9 +95,21 @@ The map keeps the trace from rotting (a drift hook flags or refreshes docs when 
 
 ## Early signal
 
-Measured on a real monorepo (Next.js + Hono + Prisma), headless sub-agents, same model and task per pair, **n=1 per arm — illustrative, not a controlled benchmark** (the harness for rigorous numbers is in [`benchmarks/`](benchmarks/)):
+Two kinds of evidence: a meter you run on your own repo, and a controlled A/B.
 
-The "tighten the conviction gate" request above, cold vs trace, as actually measured:
+### Measure your own repo — `trace-stats`
+
+The skill ships an effectiveness meter (the `/ctx-stats` analog). On a ~100k-line Next.js app, one working session that added two tools, repaired a red test suite, ran SEO, and upgraded a scaffolding command — **every task planned from the trace** — it reports:
+
+| trace : code | citation accuracy | context per area | quality grade |
+|---|---|---|---|
+| **1 : 55** compression | **92%** of 237 citations resolve | ~3.7k read vs ~81k crawl → **~22× cheaper** | **C / 75** (TODOs left to curate) |
+
+In that session an agent built, tested, and shipped a **brand-new tool** reading **only** the trace in its planning phase — its words, _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Run it on yours: `bash skills/trace-my-code/hooks/trace-stats.sh`.
+
+### Controlled A/B — cold vs trace (n=1)
+
+Same model, same task, a domain-jargon feature on a private repo. The only variable is the trace:
 
 | Arm | Files read | Agent tokens | Wall time | Approach | Confidence |
 |---|--:|--:|--:|---|:--:|
@@ -105,7 +117,7 @@ The "tighten the conviction gate" request above, cold vs trace, as actually meas
 | trace + reuse-first | **4** | **112,226** | **94s** | **extend** existing gate | **5/5** |
 | **Δ** | **−56%** | **−12%** | **−20%** | reuse, not reinvent | +1 |
 
-Across other tasks the same pattern holds: an earlier map-only version still mis-cited lines and **hallucinated a vendor** (said Langfuse; the repo uses PostHog); the current reuse-first version cites by symbol, finds callers a single grep misses, and chose a native feature over adding a library — without dropping a safety guard. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
+The caveat worth repeating: the *map alone* cuts the crawl but still lets an agent guess wrong — an earlier map-only version **hallucinated a vendor** (said Langfuse; the repo uses PostHog) and mis-cited lines. The **discipline** fixes it: symbol-anchored citations, vendors named only from the import, the reuse ladder. Map **and** discipline — and `trace-stats` scores both. Full method + how to reproduce: [`benchmarks/`](benchmarks/).
 
 ## Setup — one step, then it runs itself
 
