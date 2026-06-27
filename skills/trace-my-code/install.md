@@ -64,10 +64,12 @@ grow, the skill splits oversized files behind an index (see `references/doc-spli
 Run the bundled meter — the `/ctx-stats` analog — to see whether the trace is earning its keep:
 
 ```bash
-bash hooks/trace-stats.sh          # coverage, compression, citation health, grade, est. savings
-bash hooks/trace-stats.sh --json   # machine-readable, for CI
+bash hooks/trace-eval.sh          # coverage, compression, citation health, A–F grade + what-to-curate worklist
+bash hooks/trace-eval.sh --gaps   # significant dirs with no ARCHITECTURE.md (bootstrap next)
+bash hooks/trace-eval.sh --json   # machine-readable, for CI
 ```
 
-A fresh bootstrap grades around **C** (structure solid, `_TODO_`s open); curating those markers
-and fixing broken citations is what moves it toward **A**. Watch the grade — it's the one number
+A fresh bootstrap grades around **C** (structure solid, `_TODO_`s open); working the meter's
+**what-to-curate** worklist — confirming `_TODO_`s, adding missing Patterns sections, fixing broken
+citations — is what moves it toward **A**. Watch the grade — it's the one number
 that says whether the trace is an asset or rotting into a lie.

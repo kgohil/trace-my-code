@@ -148,7 +148,7 @@ Repeated over **5 tasks across 2 repos** (that app + [honojs/hono](https://githu
 
 In a *discoverable* repo the win is pure **efficiency** — finding the pattern ~3× cheaper, not a different answer (both arms picked the right canonical example and registration mechanism). Cost falls less than input (−33% vs −64% in the medians) because the trace-disabled arm's extra reads are mostly *cached* (billed cheap); wall time and files are the un-discounted wins. Where the domain is **opaque**, the trace also buys **correctness** — see the parallel-gate example below.
 
-In the same session that produced these numbers, an agent built, tested, and shipped a **brand-new tool** reading **only** the trace to plan it — 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Full per-task table, honest limits, and the trace-health meter (`trace-stats`): [`benchmarks/`](benchmarks/).
+In the same session that produced these numbers, an agent built, tested, and shipped a **brand-new tool** reading **only** the trace to plan it — 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Full per-task table, honest limits, and the trace-health meter (`trace-eval`): [`benchmarks/`](benchmarks/).
 
 ## Before / after
 

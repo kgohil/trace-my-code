@@ -6,18 +6,19 @@
 # trustworthy its citations are, whether the drift hook is keeping it fresh, a
 # claude-md-style quality grade, and an estimate of the context it saves per task.
 #
-#   bash trace-stats.sh                 # the report
-#   bash trace-stats.sh --citations     # also list every broken citation
-#   bash trace-stats.sh --json          # machine-readable summary
+#   bash trace-eval.sh                 # the report (+ a "what to curate" worklist)
+#   bash trace-eval.sh --citations     # also list every broken citation
+#   bash trace-eval.sh --gaps          # significant dirs with no ARCHITECTURE.md (bootstrap next)
+#   bash trace-eval.sh --json          # machine-readable summary
 #
 # Pure bash (3.2+) + git + awk/grep — no deps, no network, reads only (never writes).
 set -o pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT" || exit 1
-LIST_CITATIONS=0; AS_JSON=0
+LIST_CITATIONS=0; AS_JSON=0; SHOW_GAPS=0
 for a in "$@"; do
-  case "$a" in --citations) LIST_CITATIONS=1;; --json) AS_JSON=1;; esac
+  case "$a" in --citations) LIST_CITATIONS=1;; --json) AS_JSON=1;; --gaps) SHOW_GAPS=1;; esac
 done
 
 toks()  { wc -c | awk '{printf "%d", int($1/4)}'; }          # ~4 chars/token
@@ -56,6 +57,19 @@ if [ "$N_CODE" -gt 0 ]; then
   CODE_LINES=$(cat "${CODE[@]}" 2>/dev/null | wc -l | tr -d ' ')
   CODE_TOK=$(cat "${CODE[@]}" 2>/dev/null | toks)
   SIG_DIRS=$(printf '%s\n' "${CODE[@]}" | sed 's#/[^/]*$##' | sort | uniq -c | awk '$1>=3' | wc -l | tr -d ' ')
+fi
+
+# ---- --gaps: significant dirs lacking an ARCHITECTURE.md (the bootstrap worklist) ----
+if [ "$SHOW_GAPS" -eq 1 ]; then
+  echo "trace-my-code · coverage gaps · $(basename "$ROOT")"
+  echo "significant dirs (≥3 source files) with no ARCHITECTURE.md — bootstrap next, most code first:"
+  found=0
+  while read -r cnt dir; do
+    [ -f "$dir/ARCHITECTURE.md" ] && continue
+    printf '  %4d files  %s\n' "$cnt" "$dir"; found=$((found+1))
+  done < <(printf '%s\n' "${CODE[@]}" | sed 's#/[^/]*$##' | sort | uniq -c | awk '$1>=3{print $1, $2}' | sort -rn)
+  [ "$found" -eq 0 ] && echo "  (none — every significant dir has an ARCHITECTURE.md)"
+  exit 0
 fi
 RATIO=$(awk -v c="$CODE_TOK" -v d="$DOC_TOK" 'BEGIN{printf "%.1f", (d>0)? c/d : 0}')
 MAP_PCT=$(pct "$DOC_TOK" "$CODE_TOK")
@@ -98,9 +112,16 @@ for d in "${DOCS[@]}"; do
   case "$d" in *ARCHITECTURE.md) grep -qiE '^## (Gotchas|Invariants)' "$d" && GOTCHA=$((GOTCHA+1));; esac
 done
 GOTCHA_PCT=$(pct "$GOTCHA" "$N_ARCH")
+# patterns coverage — the "Patterns & extension points" section is what powers reuse-first;
+# an ARCHITECTURE doc without it can't stop reinvention, so it's weighted above gotchas.
+PATTERNS=0
+for d in "${DOCS[@]}"; do
+  case "$d" in *ARCHITECTURE.md) grep -qiE '^## Patterns' "$d" && PATTERNS=$((PATTERNS+1));; esac
+done
+PATTERNS_PCT=$(pct "$PATTERNS" "$N_ARCH")
 CURRENCY_PCT=$(awk -v t="$TODO_N" -v n="$N_DOCS" 'BEGIN{p=100-(n>0? 100*t/(n*4):0); printf "%d", (p<0)?0:p}')
-SCORE=$(awk -v a="$CIT_PCT" -v b="$CURRENCY_PCT" -v c="$CONCISE_PCT" -v g="$GOTCHA_PCT" -v cov="$COV_PCT" \
-  'BEGIN{printf "%d", 0.35*a + 0.25*b + 0.15*c + 0.15*g + 0.10*cov}')
+SCORE=$(awk -v a="$CIT_PCT" -v b="$CURRENCY_PCT" -v c="$CONCISE_PCT" -v g="$GOTCHA_PCT" -v p="$PATTERNS_PCT" -v cov="$COV_PCT" \
+  'BEGIN{printf "%d", 0.35*a + 0.20*b + 0.10*c + 0.10*g + 0.15*p + 0.10*cov}')
 GRADE=$(awk -v s="$SCORE" 'BEGIN{print (s>=90)?"A":(s>=80)?"B":(s>=70)?"C":(s>=50)?"D":"F"}')
 
 # ---- context footprint (one area: doc vs code) ------------------------------
@@ -109,8 +130,8 @@ AREA_DOC_TOK=$(awk -v d="$DOC_TOK" -v n="$N_ARCH" 'BEGIN{printf "%d", (n>0)? d/n
 SAVE_X=$(awk -v c="$AREA_CODE_TOK" -v d="$AREA_DOC_TOK" 'BEGIN{printf "%.1f", (d>0)? c/d : 0}')
 
 if [ "$AS_JSON" -eq 1 ]; then
-  printf '{"docs":%d,"adrs":%d,"doc_tokens":%d,"code_tokens":%d,"compression_ratio":%s,"coverage_pct":%d,"citations":%d,"citation_ok_pct":%d,"auto_refresh_commits":%d,"open_todos":%d,"grade":"%s","score":%d,"area_doc_tokens":%d,"area_code_tokens":%d}\n' \
-    "$N_DOCS" "$N_ADR" "$DOC_TOK" "$CODE_TOK" "$RATIO" "$COV_PCT" "$CIT" "$CIT_PCT" "$AUTO_REFRESH" "$TODO_N" "$GRADE" "$SCORE" "$AREA_DOC_TOK" "$AREA_CODE_TOK"
+  printf '{"docs":%d,"adrs":%d,"doc_tokens":%d,"code_tokens":%d,"compression_ratio":%s,"coverage_pct":%d,"citations":%d,"citation_ok_pct":%d,"auto_refresh_commits":%d,"open_todos":%d,"grade":"%s","score":%d,"patterns_ok_pct":%d,"gotcha_ok_pct":%d,"area_doc_tokens":%d,"area_code_tokens":%d}\n' \
+    "$N_DOCS" "$N_ADR" "$DOC_TOK" "$CODE_TOK" "$RATIO" "$COV_PCT" "$CIT" "$CIT_PCT" "$AUTO_REFRESH" "$TODO_N" "$GRADE" "$SCORE" "$PATTERNS_PCT" "$GOTCHA_PCT" "$AREA_DOC_TOK" "$AREA_CODE_TOK"
   exit 0
 fi
 
@@ -139,6 +160,7 @@ echo "QUALITY   (claude-md rubric)"
 echo "  citation accuracy [$(bar "$CIT_PCT")] ${CIT_PCT}%"
 echo "  currency          [$(bar "$CURRENCY_PCT")] ${CURRENCY_PCT}%"
 echo "  conciseness       [$(bar "$CONCISE_PCT")] ${CONCISE_PCT}%   ($OVERSIZE over 400 lines)"
+echo "  patterns coverage [$(bar "$PATTERNS_PCT")] ${PATTERNS_PCT}%   (reuse-first sections; $PATTERNS/$N_ARCH docs)"
 echo "  gotcha coverage   [$(bar "$GOTCHA_PCT")] ${GOTCHA_PCT}%"
 echo "  ── overall        ${SCORE}/100  ($GRADE)"
 echo
@@ -148,6 +170,29 @@ echo "  its code          ~$(comma "$AREA_CODE_TOK") tok / area   (the map is ~$
 echo "  ↳ ceiling, not a per-task saving: a capable agent greps rather than loading an area whole."
 echo "    Measured cold-vs-trace delta (paired runs, 5 tasks / 2 repos): ~-64% input · ~-33% cost"
 echo "    · ~-59% time, same correct plan. Input drops most; cost less (cached reads); time the robust win."
+
+# ---- what to curate: per-doc worklist, worst first (report-before-edit) ------
+# Names the weakest ARCHITECTURE docs and the exact criterion each is missing, so
+# curation is targeted instead of blind — the claude-md "assess before you edit" reflex.
+CURATE=()
+for d in "${DOCS[@]}"; do
+  case "$d" in *ARCHITECTURE.md) ;; *) continue;; esac
+  sev=0; why=""
+  grep -qiE '^## Patterns' "$d" || { sev=$((sev+100)); why="$why no Patterns&extension-points section,"; }
+  grep -qiE '^## (Gotchas|Invariants)' "$d" || { sev=$((sev+15)); why="$why no Gotchas/Invariants,"; }
+  t=$(grep -c '_TODO: confirm_' "$d" 2>/dev/null); [ "${t:-0}" -gt 0 ] && { sev=$((sev+t*3)); why="$why ${t} open _TODO_,"; }
+  b=$(printf '%s\n' "${BROKEN[@]}" | grep -Fc "$d: "); [ "${b:-0}" -gt 0 ] && { sev=$((sev+b*20)); why="$why ${b} broken citation,"; }
+  [ "$(wc -l < "$d")" -gt 400 ] && { sev=$((sev+10)); why="$why oversize (>400 lines),"; }
+  [ "$sev" -gt 0 ] && CURATE+=("$sev|$d|$why")
+done
+if [ ${#CURATE[@]} -gt 0 ]; then
+  echo
+  echo "WHAT TO CURATE   (worst first — close these to raise the grade)"
+  printf '%s\n' "${CURATE[@]}" | sort -t'|' -k1,1 -rn | head -8 | while IFS='|' read -r s d w; do
+    w="${w# }"; echo "  ! $d — ${w%,}"
+  done
+fi
+
 if [ "$LIST_CITATIONS" -eq 1 ] && [ ${#BROKEN[@]} -gt 0 ]; then
   echo; echo "BROKEN CITATIONS"; printf '  ! %s\n' "${BROKEN[@]}"
 fi

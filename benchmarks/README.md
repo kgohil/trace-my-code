@@ -29,13 +29,13 @@ Input drops −64% but **cost only −33%** — most of the trace-disabled arm's
 
 **Honest limits:** 1 run per task (the five-task spread, not error bars, is the variance); planning phase, not a full build; cost Δ is the noisiest column (−20…−57%, cache economics); every task had a **real reuse target** — the trace's home turf. Greenfield with nothing to reuse → the map saves reading, not reinventing.
 
-## Measure your own trace: `trace-stats`
+## Measure your own trace: `trace-eval`
 
 Not a harness — a daily read. The skill ships an effectiveness meter (the `/ctx-stats` analog). From any repo with a trace:
 
 ```
-bash skills/trace-my-code/hooks/trace-stats.sh         # report
-bash skills/trace-my-code/hooks/trace-stats.sh --json  # for CI
+bash skills/trace-my-code/hooks/trace-eval.sh         # report
+bash skills/trace-my-code/hooks/trace-eval.sh --json  # for CI
 ```
 
 It prints coverage, **map compression** (trace vs codebase tokens), **citation health** (how many `path › symbol` citations still resolve), **freshness** (auto-refreshes + open `_TODO_` debt), an **A–F quality grade**, and a **context footprint** (area doc vs area code). It scores the *map*; the **savings** come from the A/B above. On the ~100k-line app:
@@ -45,7 +45,7 @@ It prints coverage, **map compression** (trace vs codebase tokens), **citation h
 | Map compression | trace **41k tok** : codebase **2.28M tok** → **1 : 55** |
 | Coverage | 11 / 28 significant dirs (39%) — the meaningful areas, not the generated bulk |
 | Citation health | 237 citations, **98% resolve** (233/237) |
-| Quality grade | **77 / 100 (C)** — structure solid, 58 `_TODO_`s left to curate |
+| Quality grade | **80 / 100 (B)** — 100% patterns + 98% citation coverage; the 58 open `_TODO_`s are the main drag |
 | Context footprint | ~**3.7k** tok / area doc vs ~**81k** / area → **map ~22× smaller** (compression, *not* a per-task token bill — the measured agent delta is **−64% input / −33% cost / −59% time**, above) |
 
 In that session an agent built, tested, and shipped a **new tool** reading **only** the trace to plan it — _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real type bug a blind crawl ships.

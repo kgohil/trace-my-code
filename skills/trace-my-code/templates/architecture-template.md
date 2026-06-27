@@ -10,6 +10,11 @@ updated: YYYY-MM-DD
 > The detail layer for `<path/to/module>`. Read before changing it.
 > Companion: [[../../docs/DOMAIN|DOMAIN]] (the map) · [[../../docs/adrs/README|ADRs]] (why).
 
+<!-- Authoring rule (the claude-md avoid-list): capture only the non-obvious — flow-under-conditions,
+     the reuse seam, invariants/absences, the why, the gotcha. DON'T restate the happy path, anything
+     the signatures/types already say, DOMAIN content, or generic advice. A section with nothing
+     non-obvious to say: delete it, don't pad it. trace-eval grades you on exactly this. -->
+
 One-paragraph: what this module does and which bounded context it belongs to.
 
 ## Flow

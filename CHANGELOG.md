@@ -8,24 +8,28 @@ the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
 ### Added
 
-- **`trace-stats` — effectiveness meter** (`hooks/trace-stats.sh`, the `/ctx-stats` analog).
-  Reports coverage, map compression (trace tokens vs codebase tokens), citation health (how many
-  `path › symbol` citations still resolve), freshness (drift-hook auto-refreshes + open `_TODO_`
-  debt), a claude-md-style **A–F quality grade**, and a context footprint (area doc vs area code).
-  `--json` for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only. Turns "is the
-  trace any good?" into a number you watch move toward A.
+- **`trace-eval` — effectiveness + curation meter** (`hooks/trace-eval.sh`, the `/ctx-stats` analog).
+  Reports coverage, map compression, citation health, freshness, a context footprint, and a
+  claude-md-style **A–F quality grade** over citation accuracy, currency, conciseness, **patterns
+  coverage** (the reuse-first section that stops reinvention), and gotcha coverage. Plus a
+  **what-to-curate worklist** — the weakest docs worst-first, each tagged with the criterion it's
+  missing (assess-before-you-edit) — and **`--gaps`**, the undocumented-significant-dirs bootstrap
+  list. `--json` for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only.
 - **Cross-repo benchmark.** `benchmarks/` now leads with a cold-vs-trace A/B over **5 planning
   tasks across 2 repos** (multi-tool-app + honojs/hono): median **−64% input / −33% cost / −59%
   time**, same correct plan; raw per-task telemetry in `benchmarks/runs/`. Plus measured
-  `trace-stats` numbers from a ~100k-line app (1:55 compression, **98% citation accuracy**).
+  `trace-eval` numbers from a ~100k-line app (1:55 compression, **98% citation accuracy**).
 
 ### Changed
 
 - **SKILL.md** documents the effectiveness meter and the proven-on-a-real-repo benefits.
-- **Authoring discipline** folds in `/claude-md-improver` + `revise-claude-md` learnings: terse,
-  document only the non-obvious (one line per concept; skip the obvious), and a Mode-A "harvest
-  what was missing" reflection trigger (the `#`-key reflex applied to architecture docs).
-- **benchmarks/README** swaps opaque private-project anecdotes for the `trace-stats` meter and the
+- **Authoring discipline** folds in `/claude-md-improver` + `revise-claude-md` learnings: an explicit
+  **avoid-list** (don't restate the code, DOMAIN content, or generic advice — in SKILL Guardrails +
+  the ARCHITECTURE template), a **structured Mode-A reflection** that routes each harvested learning to
+  its doc section (pattern→Patterns, gotcha→Gotchas, invariant→Invariants, vendor→External), and a
+  **report-before-edit** curation flow driven by `trace-eval`'s worklist (the `#`-key reflex applied
+  to architecture docs).
+- **benchmarks/README** swaps opaque private-project anecdotes for the `trace-eval` meter and the
   real-session numbers; keeps the controlled cold-vs-trace A/B (generalized).
 
 ## [0.7.0] - 2026-06-24

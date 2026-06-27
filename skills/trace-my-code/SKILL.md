@@ -47,7 +47,7 @@ applied here to a codebase instead of a research corpus.
   when the code it describes changes, so it never quietly rots into a lie.
 
 **Proven across repos.** Bootstrapped on a ~100k-line Next.js app, the trace measures (via the
-bundled `trace-stats`, below) **~22× smaller** per area than the code (~3.7k vs ~81k tokens —
+bundled `trace-eval`, below) **~22× smaller** per area than the code (~3.7k vs ~81k tokens —
 fits in context where the code doesn't) at **98% citation accuracy** across 237 citations. On a
 cold-vs-trace A/B — 5 planning tasks across that app **and** [honojs/hono](https://github.com/honojs/hono)
 — the trace agent used **−64% input, −33% cost, −59% time** (medians), opened **~⅓ the files**,
@@ -90,12 +90,20 @@ together: no central index, just links between roots. See `references/multi-repo
 - **Mode 0 — bootstrap** (`references/bootstrap.md`): on a fresh repo, generate the
   initial trace (DOMAIN.md + per-area ARCHITECTURE.md skeletons + seed ADRs), grounded
   in code with `_TODO: confirm_` on anything unverified. A draft to curate — it kills
-  the blank page.
-- **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**,
-  cite `path:line`, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs.
-  **Harvest what was missing:** after a task, fold back the gotcha you hit or the pattern you
-  had to re-derive — the trace's _experience-truth_, kept current the way the drift hook keeps
-  its _code-truth_ current (the `#`-key reflex, applied to architecture docs).
+  the blank page. Then curate **worst-first**: `trace-eval` ranks the weak docs and names
+  each missing criterion; `--gaps` lists significant dirs still to bootstrap.
+- **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**, cite by
+  symbol, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs. **Harvest what was
+  missing** (the `#`-key reflex, applied to architecture docs) — after each task, run this reflection
+  and fold every hit into the right section of the area doc:
+  - re-derived a pattern the trace should have named? → **Patterns & extension points**
+  - hit a gotcha, ordering trap, or stale comment? → **Gotchas**
+  - found an invariant, limit, or magic number? → **Invariants & absences** (cite its source)
+  - learned a 3rd-party system from an import? → **External / out-of-repo**
+  - a citation no longer resolved while you worked? → fix it in place
+
+  This is the trace's _experience-truth_, kept current the way the drift hook keeps its _code-truth_
+  current. `trace-eval`'s **what-to-curate** worklist (above) tells you which docs to harvest into first.
 - **Mode B — auto-update on drift** (`references/auto-update-contract.md`): **bootstrap
   wires this on by default** (CI workflow if the repo has `.github/`, else a local pre-push
   hook). It finds **code** changes in a traced area and **rewrites** the affected docs —
@@ -131,34 +139,41 @@ once and drifts). It's a soft reminder, not a hard gate. It **self-gates** — s
 tokens) in any repo without a trace — and costs ~100 input tokens/turn where a trace
 exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
 
-## Measuring effectiveness (`trace-stats`)
+## Measuring effectiveness (`trace-eval`)
 
-Is the trace earning its keep? Run the bundled meter — the `/ctx-stats` analog — from any repo
-root (pure bash + git, reads only):
+Is the trace earning its keep — and what should you fix next? Run the bundled meter — the
+`/ctx-stats` analog — from any repo root (pure bash + git, reads only):
 
 ```
-bash hooks/trace-stats.sh              # the report
-bash hooks/trace-stats.sh --citations  # also list every broken citation
-bash hooks/trace-stats.sh --json       # machine-readable summary
+bash hooks/trace-eval.sh              # the report + a "what to curate" worklist
+bash hooks/trace-eval.sh --citations  # also list every broken citation
+bash hooks/trace-eval.sh --gaps       # significant dirs with no ARCHITECTURE.md (bootstrap next)
+bash hooks/trace-eval.sh --json       # machine-readable summary
 ```
 
-It reports six things:
+It reports:
 
-- **Coverage** — areas with an `ARCHITECTURE.md` vs significant source dirs.
-- **Map compression** — trace tokens vs codebase tokens (proof you're reading the map, not the
-  territory).
-- **Citation health** — how many `` `path › symbol` `` citations still resolve. This is the
-  grounding metric; the drift hook protects it, `trace-stats` scores it.
+- **Coverage** — areas with an `ARCHITECTURE.md` vs significant source dirs. `--gaps` lists the
+  undocumented ones, most-code-first — the bootstrap worklist.
+- **Map compression** — trace tokens vs codebase tokens (proof you're reading the map, not the territory).
+- **Citation health** — how many `` `path › symbol` `` citations still resolve. The grounding metric;
+  the drift hook protects it, `trace-eval` scores it.
 - **Freshness** — Mode-B auto-refresh commits + open `_TODO: confirm_` curation debt.
 - **Quality grade** — a claude-md-style **A–F** over citation accuracy, currency, conciseness,
-  and gotcha coverage, so "is the trace any good?" gets a number, not a vibe.
-- **Context footprint** — how much smaller an area's doc is than its code (compression — it fits
-  in context where the code doesn't). It scores the *map* size, not the per-task saving; the measured
-  cold-vs-trace delta is **−64% input / −33% cost / −59% time** (medians, 5 tasks / 2 repos — see benchmarks).
+  **patterns coverage** (does each area name its reuse-first canonical example — the section that
+  stops reinvention), and gotcha coverage. A number, not a vibe.
+- **Context footprint** — how much smaller an area's doc is than its code. It scores the *map* size,
+  not the per-task saving; the measured cold-vs-trace delta is **−64% input / −33% cost / −59% time**
+  (medians, 5 tasks / 2 repos — see benchmarks).
+- **What to curate** — the weakest docs, worst-first, each tagged with the exact criterion it's
+  missing (no Patterns section, broken citation, open `_TODO_`). **Run this before a curation pass**
+  and work the list top-down: assess before you edit (the claude-md report-first reflex), so you fix
+  what moves the grade instead of polishing what's already fine.
 
-A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); curating those markers
-and fixing broken citations is what moves it toward **A**. Track the grade over time — it's the
-single number that tells you whether the trace is an asset or rotting into a lie.
+A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); closing the worklist —
+confirming `_TODO_`s, adding the missing Patterns sections, fixing broken citations — is what moves
+it toward **A**. Track the grade over time: the single number that says whether the trace is an asset
+or rotting into a lie.
 
 ## Guardrails (why the trace stays trustworthy)
 
@@ -177,5 +192,10 @@ single number that tells you whether the trace is an asset or rotting into a lie
   repos), so context stays navigable as the system grows.
 - **Terse, and only the non-obvious.** The doc is the agent's prompt, so brevity is cost: one
   line per concept; capture flow, gotchas, invariants, and the _why_, and never restate what the
-  code already makes plain (claude-md discipline). `trace-stats` grades conciseness + currency,
+  code already makes plain (claude-md discipline). `trace-eval` grades conciseness + currency,
   so this stays measurable, not aspirational.
+- **Don't capture the obvious** (the claude-md avoid-list). Skip the happy path a reader gets straight
+  from the code, anything the signatures/types already state, DOMAIN content duplicated into an
+  ARCHITECTURE doc, generic best-practice advice, and one-off fixes unlikely to recur. A doc that
+  restates the code is worse than none — maintenance cost, zero signal. Keep only flow-under-conditions,
+  the reuse seam, invariants/absences, the _why_, and the gotcha.
