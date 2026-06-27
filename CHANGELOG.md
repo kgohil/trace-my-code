@@ -11,12 +11,13 @@ the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 - **`trace-stats` — effectiveness meter** (`hooks/trace-stats.sh`, the `/ctx-stats` analog).
   Reports coverage, map compression (trace tokens vs codebase tokens), citation health (how many
   `path › symbol` citations still resolve), freshness (drift-hook auto-refreshes + open `_TODO_`
-  debt), a claude-md-style **A–F quality grade**, and estimated tokens saved per task. `--json`
-  for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only. Turns "is the trace any
-  good?" into a number you watch move toward A.
-- **Real-repo benchmark.** `benchmarks/` now leads with measured `trace-stats` numbers from a
-  ~100k-line app (1:55 map→code compression, 92% citation accuracy, ~22× cheaper context per area)
-  plus a near-controlled "agent ships a new tool reading only the trace" result.
+  debt), a claude-md-style **A–F quality grade**, and a context footprint (area doc vs area code).
+  `--json` for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only. Turns "is the
+  trace any good?" into a number you watch move toward A.
+- **Cross-repo benchmark.** `benchmarks/` now leads with a cold-vs-trace A/B over **5 planning
+  tasks across 2 repos** (multi-tool-app + honojs/hono): median **−64% input / −33% cost / −59%
+  time**, same correct plan; raw per-task telemetry in `benchmarks/runs/`. Plus measured
+  `trace-stats` numbers from a ~100k-line app (1:55 compression, **98% citation accuracy**).
 
 ### Changed
 

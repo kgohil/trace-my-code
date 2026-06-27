@@ -103,15 +103,14 @@ SCORE=$(awk -v a="$CIT_PCT" -v b="$CURRENCY_PCT" -v c="$CONCISE_PCT" -v g="$GOTC
   'BEGIN{printf "%d", 0.35*a + 0.25*b + 0.15*c + 0.15*g + 0.10*cov}')
 GRADE=$(awk -v s="$SCORE" 'BEGIN{print (s>=90)?"A":(s>=80)?"B":(s>=70)?"C":(s>=50)?"D":"F"}')
 
-# ---- estimated savings ------------------------------------------------------
+# ---- context footprint (one area: doc vs code) ------------------------------
 AREA_CODE_TOK=$(awk -v c="$CODE_TOK" -v s="$SIG_DIRS" 'BEGIN{printf "%d", (s>0)? c/s : 0}')
 AREA_DOC_TOK=$(awk -v d="$DOC_TOK" -v n="$N_ARCH" 'BEGIN{printf "%d", (n>0)? d/n : 0}')
-SAVE=$((AREA_CODE_TOK - AREA_DOC_TOK)); [ "$SAVE" -lt 0 ] && SAVE=0
 SAVE_X=$(awk -v c="$AREA_CODE_TOK" -v d="$AREA_DOC_TOK" 'BEGIN{printf "%.1f", (d>0)? c/d : 0}')
 
 if [ "$AS_JSON" -eq 1 ]; then
-  printf '{"docs":%d,"adrs":%d,"doc_tokens":%d,"code_tokens":%d,"compression_ratio":%s,"coverage_pct":%d,"citations":%d,"citation_ok_pct":%d,"auto_refresh_commits":%d,"open_todos":%d,"grade":"%s","score":%d,"est_tokens_saved_per_task":%d}\n' \
-    "$N_DOCS" "$N_ADR" "$DOC_TOK" "$CODE_TOK" "$RATIO" "$COV_PCT" "$CIT" "$CIT_PCT" "$AUTO_REFRESH" "$TODO_N" "$GRADE" "$SCORE" "$SAVE"
+  printf '{"docs":%d,"adrs":%d,"doc_tokens":%d,"code_tokens":%d,"compression_ratio":%s,"coverage_pct":%d,"citations":%d,"citation_ok_pct":%d,"auto_refresh_commits":%d,"open_todos":%d,"grade":"%s","score":%d,"area_doc_tokens":%d,"area_code_tokens":%d}\n' \
+    "$N_DOCS" "$N_ADR" "$DOC_TOK" "$CODE_TOK" "$RATIO" "$COV_PCT" "$CIT" "$CIT_PCT" "$AUTO_REFRESH" "$TODO_N" "$GRADE" "$SCORE" "$AREA_DOC_TOK" "$AREA_CODE_TOK"
   exit 0
 fi
 
@@ -146,10 +145,9 @@ echo
 echo "CONTEXT FOOTPRINT   (loading one area)"
 echo "  the map           ~$(comma "$AREA_DOC_TOK") tok / area doc"
 echo "  its code          ~$(comma "$AREA_CODE_TOK") tok / area   (the map is ~${SAVE_X}× smaller)"
-echo "  ↳ ceiling, not a per-task saving: a capable agent greps rather than loading an area whole,"
-echo "    so measured cold-vs-trace TOTAL-token deltas are smaller (~-15%) — diluted by fixed"
-echo "    prompt overhead + ~constant output. Files read is the cleaner proxy for the context"
-echo "    saving (paired runs: ~-76% files, ~-45% time)."
+echo "  ↳ ceiling, not a per-task saving: a capable agent greps rather than loading an area whole."
+echo "    Measured cold-vs-trace delta (paired runs, 5 tasks / 2 repos): ~-64% input · ~-33% cost"
+echo "    · ~-59% time, same correct plan. Input drops most; cost less (cached reads); time the robust win."
 if [ "$LIST_CITATIONS" -eq 1 ] && [ ${#BROKEN[@]} -gt 0 ]; then
   echo; echo "BROKEN CITATIONS"; printf '  ! %s\n' "${BROKEN[@]}"
 fi
