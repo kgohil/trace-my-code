@@ -23,6 +23,20 @@ cmd="$(printf '%s' "$event" | grep -oE '/trace-eval[A-Za-z0-9 _-]*' | head -1)"
 argstr="${cmd#/trace-eval}"; argstr="${argstr# }"
 read -r -a args <<< "$argstr"
 
+# Self-gate: only report when a real trace exists (docs/DOMAIN.md or a module
+# ARCHITECTURE.md) — same check as the reuse-first nudge. A docs-only repo isn't a trace.
+root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+has_trace=0
+if [ -f "$root/docs/DOMAIN.md" ]; then
+  has_trace=1
+elif find "$root" -maxdepth 5 -name ARCHITECTURE.md -not -path '*/node_modules/*' -print -quit 2>/dev/null | grep -q .; then
+  has_trace=1
+fi
+if [ "$has_trace" -ne 1 ]; then
+  printf '%s\n' '{"decision":"block","reason":"trace-my-code: no trace in this repo yet. Bootstrap one with the trace-my-code skill, then /trace-eval reports its health."}'
+  exit 0
+fi
+
 here="$(cd "$(dirname "$0")" && pwd)"
 out="$(bash "$here/trace-eval.sh" "${args[@]}" 2>&1 || true)"
 
