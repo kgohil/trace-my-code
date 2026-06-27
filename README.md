@@ -150,6 +150,8 @@ In a *discoverable* repo the win is pure **efficiency** — finding the pattern 
 
 In the same session that produced these numbers, an agent built, tested, and shipped a **brand-new tool** reading **only** the trace to plan it — 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Full per-task table, honest limits, and the trace-health meter (`trace-eval`): [`benchmarks/`](benchmarks/).
 
+These are **no-priors** repos — where you actually work. On a *memorized* public repo (argo, react) the trace is roughly **neutral**: big upside where it matters, ~zero downside where it doesn't. The [asymmetric payoff](benchmarks/), in full.
+
 ## Before / after
 
 A real request, phrased the way a domain expert says it — jargon a fresh agent has to decode from scratch:

@@ -4,6 +4,25 @@ Does the trace change agent behavior? Here's how it's measured — and the hones
 
 **The claim:** given a maintained map of what exists, an agent plans from fewer reads, reuses instead of reinventing, and doesn't over-build — without dropping safety. Measurable. This directory says how.
 
+## What the trace is worth — an asymmetric payoff
+
+The trace's value tracks one thing: **does the model already have priors on this repo?**
+
+- **No priors** — private, internal, niche, or post-cutoff repos: *the overwhelming majority of real
+  engineering.* The agent must discover the codebase to act, so the trace replaces the crawl. Measured
+  below: **−64% input / −59% time** on planning, and on an opaque-domain build the cold agent shipped
+  the **wrong** design while the trace **extended the right one** (correctness, not just speed).
+- **Memorized** — the handful of famous public repos a model has effectively absorbed (argo, react, …):
+  the agent already navigates them, so the trace adds little. Measured on a real argo feature:
+  **~neutral** (+6% tokens / +10% time, same correct result).
+
+**Net: big upside where you actually work, ~zero downside where you don't.** The neutral case needs
+*both* a memorized repo *and* a low-discovery, obvious-reuse task — rare (even on memorized hono, the
+discovery-heavy *planning* task still won −64%). Everywhere else the trace wins on tokens, time, or
+correctness. That asymmetry — not a single headline number — is the honest claim. The three result
+sets below are the evidence: planning + opaque-domain build (no priors) and a real argo feature
+(memorized, the harmless boundary).
+
 ## The result — trace-disabled vs trace-enabled, across repos
 
 Same model, same planning task; the only variable is whether the agent can read the trace. The probe scores the **planning / discovery phase**, where the crawl-vs-map gap lives: a fresh agent plans a feature (files to create/modify + the pattern to follow), once **trace-disabled** (the trace hidden, derive from source) and once **trace-enabled**. Each arm is a real `claude -p --output-format json` run — full telemetry: input/output tokens, cost, wall time, turns, plan correctness.
