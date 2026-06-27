@@ -29,6 +29,25 @@ Input drops −64% but **cost only −33%** — most of the trace-disabled arm's
 
 **Honest limits:** 1 run per task (the five-task spread, not error bars, is the variance); planning phase, not a full build; cost Δ is the noisiest column (−20…−57%, cache economics); every task had a **real reuse target** — the trace's home turf. Greenfield with nothing to reuse → the map saves reading, not reinventing.
 
+## Real-feature validation (argo-events #4018)
+
+The honest stress-test: re-implement a **real, post-cutoff feature** from scratch, cold vs trace,
+scored against the **actual merged PR** (ground truth). On this run — a **model-known** repo with an
+obvious reuse target — the trace **did not help**:
+
+| Arm | files opened | tokens | time | correct vs gold? |
+|---|--:|--:|--:|:--:|
+| cold (no trace) | **5** | 91.9k | 748s | ✓ |
+| trace | 8 | 97.3k | 826s | ✓ |
+
+Both reused the right pattern (`GithubAppCreds` + `ghinstallation`) and matched the human PR — the
+trace cost +6% tokens / +10% time for the same answer. The cold agent found the obvious reuse target
+unaided (argo is well-known + discoverable), and a stale citation in the quickly-authored trace added
+a read. A useful caution: the trace's benefit is **task- and repo-dependent**, clearest on
+**unknown/opaque** repos (the private-repo run, where cold built a *wrong* gate) — not well-trodden
+public ones a model has effectively memorized. n=1, structural validation (no compile/test). Full
+method + limits: [`runs/2026-06-real-feature-argo-events.md`](runs/2026-06-real-feature-argo-events.md).
+
 ## Measure your own trace: `trace-eval`
 
 Not a harness — a daily read. The skill ships an effectiveness meter (the `/ctx-stats` analog). From any repo with a trace:
