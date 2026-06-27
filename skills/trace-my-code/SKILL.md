@@ -199,3 +199,10 @@ or rotting into a lie.
   ARCHITECTURE doc, generic best-practice advice, and one-off fixes unlikely to recur. A doc that
   restates the code is worse than none — maintenance cost, zero signal. Keep only flow-under-conditions,
   the reuse seam, invariants/absences, the _why_, and the gotcha.
+- **Compress the prose, not the precision** (caveman discipline). Within a kept line, write dense: drop
+  articles, filler, hedging, and connective fluff; fragments are fine; short synonyms (`use`, not
+  `utilize`) — the doc is the agent's prompt, so every token is context cost. But the precision is
+  **read-only**: never compress away an **invariant or absence** (a dropped "NOT enforced" makes the
+  agent assume the guard exists), a **branch condition** (`when X → A, else B`), a **magic number and its
+  source**, or a security gotcha — and never touch a citation `` `path › symbol` ``, value, version, or
+  path. Terseness that loses a condition or an absence is a bug, not brevity.

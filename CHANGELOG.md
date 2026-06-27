@@ -28,7 +28,9 @@ the skill via `version:` in `skills/trace-my-code/SKILL.md`.
   the ARCHITECTURE template), a **structured Mode-A reflection** that routes each harvested learning to
   its doc section (pattern→Patterns, gotcha→Gotchas, invariant→Invariants, vendor→External), and a
   **report-before-edit** curation flow driven by `trace-eval`'s worklist (the `#`-key reflex applied
-  to architecture docs).
+  to architecture docs). Adds a **caveman compression discipline** for doc prose — write dense (drop
+  filler), but never compress away the precision (invariants/absences, branch conditions, magic numbers,
+  citations): "compress the prose, not the precision."
 - **benchmarks/README** swaps opaque private-project anecdotes for the `trace-eval` meter and the
   real-session numbers; keeps the controlled cold-vs-trace A/B (generalized).
 
