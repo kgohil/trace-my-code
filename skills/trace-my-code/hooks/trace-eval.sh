@@ -188,7 +188,7 @@ done
 if [ ${#CURATE[@]} -gt 0 ]; then
   echo
   echo "WHAT TO CURATE   (worst first — close these to raise the grade)"
-  printf '%s\n' "${CURATE[@]}" | sort -t'|' -k1,1 -rn | head -8 | while IFS='|' read -r s d w; do
+  printf '%s\n' "${CURATE[@]}" | sort -t'|' -k1,1 -rn | head -8 | while IFS='|' read -r _ d w; do
     w="${w# }"; echo "  ! $d — ${w%,}"
   done
 fi
