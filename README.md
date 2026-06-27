@@ -31,7 +31,7 @@
 
 ## TL;DR
 
-**Your coding agent reads ~2 docs instead of crawling 25 files, reuses what exists, and builds the right thing.** trace-my-code keeps a living map of your codebase — domain language, architecture, patterns — and makes the agent read it before it writes. Cold vs trace, same planning task, **5 tasks across 2 repos**: **−64% input tokens, −33% cost, −59% wall time**, ⅓ the files — for the *same correct plan*. Opaque domain? It extends the existing code instead of bolting on a copy.
+**Your coding agent reads ~2 docs instead of crawling 25 files, reuses what exists, and builds the right thing.** trace-my-code keeps a living map of your codebase — domain language, architecture, patterns — and makes the agent read it before it writes. Trace-disabled vs trace-enabled, same planning task, **5 tasks across 2 repos**: **−64% input tokens, −33% cost, −59% wall time**, ⅓ the files — for the *same correct plan*. Opaque domain? It extends the existing code instead of bolting on a copy.
 
 **What it gives you**
 
@@ -46,7 +46,7 @@
 
 Most agents can read files. Fewer understand the thing the files are about.
 
-You ask for a CSV export. A cold agent writes a new export module, pulls in a CSV library, and hand-rolls a date picker. Fine-looking work. Wrong shape. The repo already had an export pattern, the platform already had `<input type="date">`, and a one-line join covered the CSV.
+You ask for a CSV export. A fresh agent writes a new export module, pulls in a CSV library, and hand-rolls a date picker. Fine-looking work. Wrong shape. The repo already had an export pattern, the platform already had `<input type="date">`, and a one-line join covered the CSV.
 
 That's the obvious failure: rebuilding what already exists.
 
@@ -127,17 +127,26 @@ The map keeps the trace from rotting (the drift hook flags or refreshes docs whe
 
 ## The numbers
 
-Same model, same planning task; the only variable is whether the agent can read the trace. Five fresh tasks across two repos — a ~100k-line Next.js app and [honojs/hono](https://github.com/honojs/hono) (a 25k-line TS framework, trace bootstrapped on just the areas the tasks touch). Each arm is a real `claude -p --output-format json` run, full telemetry:
+**The test.** Same model, same planning task, same repo — the only variable is the trace:
 
-| Metric | Cold → Trace (median Δ) |
-|---|--:|
-| Input tokens | **−64%** |
-| Dollar cost | **−33%** |
-| Wall time | **−59%** |
-| Files opened / turns | ~5 → 2  /  7 → 2 |
-| Plan correctness | **same correct plan, 5/5** |
+- **trace-disabled** — the trace is hidden; the agent crawls source to rediscover the pattern, then plans.
+- **trace-enabled** — the same agent reads the trace first (reuse-first), then plans.
 
-All five reached the **same correct plan** — both arms found the right canonical example and the right registration mechanism. So in a *discoverable* repo the win is pure **efficiency**: finding the pattern ~3× cheaper, not a different answer. Cost falls less than input (−33% vs −64%) because the cold arm's extra reads are mostly *cached* (billed cheap). Where the domain is **opaque**, the trace also buys **correctness** — see the parallel-gate example below.
+One task in full — _"plan a UUID-generator tool"_ in the ~100k-line Next.js app. Each arm is a real `claude -p --output-format json` run (input includes the fixed system prompt + cached file reads):
+
+| Metric | trace-disabled | trace-enabled | Δ |
+|---|--:|--:|--:|
+| Input tokens | 355,115 | 143,329 | **−60%** |
+| Output tokens | 3,435 | 1,348 | **−61%** |
+| Dollar cost | $1.68 | $1.15 | **−31%** |
+| Wall time | 52.5 s | 24.9 s | **−53%** |
+| Files opened | 6 | 1 | **−83%** |
+| Turns | 9 | 2 | **−78%** |
+| Plan | correct — crawled to the pattern | correct — read the trace | **identical** |
+
+Repeated over **5 tasks across 2 repos** (that app + [honojs/hono](https://github.com/honojs/hono), a 25k-line TS framework), the medians hold: **−64% input, −61% output, −33% cost, −59% time** — every task the *same correct plan*.
+
+In a *discoverable* repo the win is pure **efficiency** — finding the pattern ~3× cheaper, not a different answer (both arms picked the right canonical example and registration mechanism). Cost falls less than input (−33% vs −64% in the medians) because the trace-disabled arm's extra reads are mostly *cached* (billed cheap); wall time and files are the un-discounted wins. Where the domain is **opaque**, the trace also buys **correctness** — see the parallel-gate example below.
 
 In the same session that produced these numbers, an agent built, tested, and shipped a **brand-new tool** reading **only** the trace to plan it — 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Full per-task table, honest limits, and the trace-health meter (`trace-stats`): [`benchmarks/`](benchmarks/).
 
@@ -155,7 +164,7 @@ A real request, phrased the way a domain expert says it — jargon a fresh agent
 
 Same request, same model. The trace agent read **56% fewer files**, finished **20% faster**, and **built the right thing** — reused the existing gate instead of bolting a second one beside it. (Private-repo run, the opaque-domain case; n=1, method in [`benchmarks/`](benchmarks/).)
 
-Another shape of the same win — a CSV export, where a cold agent over-builds:
+Another shape of the same win — a CSV export, where a fresh agent over-builds:
 > **Without:** _"add a `csv-stringify` dependency + a new `ExportService`"_ (a date-picker lib too).
 > **With:** _"rung 4 — native `<input type=\"date\">`, no lib; rung 7 — one-line CSV join; extend the existing export procedure. Validation + auth-scoping kept."_
 
