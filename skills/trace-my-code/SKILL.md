@@ -151,6 +151,10 @@ bash hooks/trace-eval.sh --gaps       # significant dirs with no ARCHITECTURE.md
 bash hooks/trace-eval.sh --json       # machine-readable summary
 ```
 
+Installed as a plugin? Just type **`/trace-eval`** (with `--gaps` / `--citations` / `--json`) — a
+`UserPromptSubmit` hook runs the meter and prints the report inline, **zero model tokens** (the
+`/caveman-stats` pattern).
+
 It reports:
 
 - **Coverage** — areas with an `ARCHITECTURE.md` vs significant source dirs. `--gaps` lists the
