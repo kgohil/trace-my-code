@@ -66,8 +66,9 @@ bash skills/trace-my-code/hooks/trace-stats.sh --json  # for CI
 
 It prints coverage, **map compression** (trace tokens vs codebase tokens), **citation health**
 (how many `path › symbol` citations still resolve), **freshness** (drift-hook auto-refreshes +
-open `_TODO_` debt), a claude-md-style **A–F quality grade**, and **estimated tokens saved per
-task** — turning "is the trace any good?" into a number you watch move toward A as you curate.
+open `_TODO_` debt), a claude-md-style **A–F quality grade**, and a **context footprint** (how much
+smaller an area's doc is than its code) — turning "is the trace any good?" into a number you watch
+move toward A as you curate. It scores the *map*; the cold-vs-trace **savings** come from the A/B below.
 
 ## Real result: a full feature session
 
@@ -79,42 +80,59 @@ planned from the trace**. `trace-stats` on that repo:
 |---|---|
 | Map compression | trace **41k tok** : codebase **2.28M tok** → **1 : 55** |
 | Coverage | 11 / 28 significant dirs (39%) — the meaningful areas, not the generated bulk |
-| Citation health | 237 citations, **92% resolve** |
-| Quality grade | **75 / 100 (C)** — structure solid, 58 `_TODO_`s left to curate |
-| Map vs area code | ~**3.7k** tok / area doc vs ~**81k** / area → **map ~22× smaller** (compression — *not* a per-task token bill; the measured agent delta is −15%, see the A/B) |
+| Citation health | 237 citations, **98% resolve** (233/237) |
+| Quality grade | **77 / 100 (C)** — structure solid, 58 `_TODO_`s left to curate |
+| Map vs area code | ~**3.7k** tok / area doc vs ~**81k** / area → **map ~22× smaller** (compression — *not* a per-task token bill; the measured cold-vs-trace agent delta is **−64% input / −33% cost / −59% time**, see the A/B) |
 
 The near-controlled point inside that session: an agent built, tested, and shipped a **new tool**
 on a trace-driven pipeline, reading **only** the trace in its planning phase. Its own words:
 _"Phase 0 genuinely replaced crawling… the trace docs gave me everything."_ It passed 14/14
 tests and the pipeline caught a real type bug — the kind a blind crawl ships.
 
-## Controlled A/B — cold vs trace (n=1)
+## Controlled A/B — cold vs trace, across repos
 
-Same model, same planning task — _"plan adding a UUID Generator tool"_ — on the **same repo as the
-real result above**, with vs without the trace:
+Same model, same task; the only variable is whether the agent can read the trace. The probe scores
+the **planning / discovery phase** — where the crawl-vs-map gap lives: a fresh agent plans a feature
+(exact files to create/modify + the pattern to follow), once **cold** (forbidden from the trace,
+derive from source) and once with the **trace**. Each arm is a real `claude -p --output-format json`
+run, so we capture the full telemetry: input/output tokens, dollar cost, wall time, turns, and whether
+the plan is correct.
 
-| Arm | Files read | Agent tokens | Wall time | Plan |
-|---|--:|--:|--:|:--|
-| Cold (no trace) | 17 | 99,402 | 70s | correct — crawled 17 files to re-derive the two-tier pattern |
-| Trace + reuse-first | **4** | **84,148** | **38s** | correct — read the trace, same plan |
-| Δ | **−76%** | **−15%** | **−45%** | identical plan (copy `password-generator`; 4 new, 3 modified) |
+Five fresh tasks across two repos — a ~100k-line Next.js app, and
+[honojs/hono](https://github.com/honojs/hono) (a 25k-line TS framework, trace bootstrapped on just the
+two areas the tasks touch):
 
-Both arms reached the same correct plan, so here the win is **pure efficiency** — the trace agent
-read a quarter of the files and finished in half the time for the same answer. The trace doesn't
-make a well-structured repo's pattern *more* discoverable; it makes discovering it far cheaper.
+| Repo | Task | input tok | output tok | cost $ | wall time | turns |
+|---|---|--:|--:|--:|--:|--:|
+| multi-tool-app | UUID generator | −60% | −61% | −32% | −53% | 9→2 |
+| multi-tool-app | Base64 encoder/decoder | −70% | −62% | −57% | −67% | 10→2 |
+| multi-tool-app | JWT decoder | −59% | −54% | −53% | −49% | 7→2 |
+| Hono | rate-limit middleware | −65% | −54% | −33% | −59% | 6→3 |
+| Hono | geo helper | −64% | −61% | −20% | −76% | 6→3 |
+| **median (n=5)** | | **−64%** | **−61%** | **−33%** | **−59%** | **7→2** |
 
-The token column is **−15% total**, much smaller than the −76% files — because the agent's total
-is mostly arm-independent: a large fixed input (system prompt + tool schemas) plus a ~constant
-output (the plan). The trace cuts the **variable input** (files read); that delta is real but
-diluted in the total. The harness reports only total `subagent_tokens`, so **files read** is the
-cleaner proxy for the context saving.
+_Raw per-task telemetry (absolute input/output/cost/time/turns per arm): [`runs/2026-06-cross-repo.csv`](runs/2026-06-cross-repo.csv)._
 
-Where the domain is opaque, the trace also buys **correctness**. A separate private-repo run
-(a domain-jargon feature) had the cold agent build a **new parallel gate** (9 files, 127,808
-tokens, 118s) while the trace agent **extended** the existing one (4 files, 112,226 tokens, 94s) —
-and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog) and
-cited stale lines. The **discipline** fixes that: symbol-anchored citations, vendors named only
-from the import, the reuse ladder. Map **and** discipline — and `trace-stats` scores both.
+**−64% input tokens, −33% dollar cost, −59% wall time** (medians); the cold arm opened ~5 files over
+6–10 turns where the trace arm opened 1–2 over 2–3. All five reached the **same correct plan** — both
+arms picked the right canonical example to copy and (in Hono) the non-obvious registration mechanism
+(`package.json` `exports`, no barrel). So in a **discoverable** repo the trace's win is pure
+**efficiency**: it makes finding the pattern ~3× cheaper, not the answer different.
+
+Input drops −64% but **cost only −33%**, because most of the cold arm's extra input is *cached* reads
+(billed cheap); wall time (−59%) and files/turns are the un-discounted wins. We report all three
+rather than cherry-pick the token count — that gap is the honest shape of the saving.
+
+**Where the domain is opaque, the trace also buys correctness.** A separate private-repo run
+(a domain-jargon feature) had the cold agent build a **new parallel gate** (9 files, 127,808 tokens,
+118s) while the trace agent **extended** the existing one (4 files, 112,226 tokens, 94s) — and a
+map-only variant **hallucinated a vendor** (said Langfuse; the repo uses PostHog). Discoverable repos
+test efficiency; opaque domains test correctness — the trace wins both, by different mechanisms.
+
+**Honest limits:** 1 run per task (the five-task spread, not error bars, is the variance); the probe
+scores the **planning phase**, not a full build; cost Δ is the noisiest column (−20…−57%, cache
+economics); and every task had a **real reuse target** — the trace's home turf. On a greenfield task
+with nothing to reuse, the map saves reading, not reinventing.
 
 ## Reproduce the probe
 

@@ -46,12 +46,13 @@ applied here to a codebase instead of a research corpus.
 - **Always current** — a drift check (git hook or CI) flags or refreshes the trace
   when the code it describes changes, so it never quietly rots into a lie.
 
-**Proven on a real repo.** Bootstrapped on a ~100k-line Next.js app, the trace measured (via
-the bundled `trace-stats`, below) with a per-area doc **~22× smaller** than the code it covers
-(~3.7k vs ~81k tokens — it fits in context where the code doesn't) and **92% citation accuracy**
-across 237 citations. On a like-for-like task, cold vs trace, the trace agent read **~76% fewer
-files** and finished **~45% faster** (the raw token delta is smaller, ~−15%, since fixed
-per-agent overhead dominates — files read and time are the robust wins).
+**Proven across repos.** Bootstrapped on a ~100k-line Next.js app, the trace measures (via the
+bundled `trace-stats`, below) **~22× smaller** per area than the code it covers (~3.7k vs ~81k
+tokens — it fits in context where the code doesn't) at **98% citation accuracy** across 237
+citations. On a cold-vs-trace A/B — 5 planning tasks across that app **and**
+[honojs/hono](https://github.com/honojs/hono) — the trace agent used **−64% input tokens, −33%
+cost, −59% wall time** (medians) and opened **~⅓ the files**, for the *same correct plan*; where
+the domain was opaque it also avoided a wrong-pattern rebuild the cold agent shipped.
 In the same session an agent built, tested, and shipped a brand-new tool reading **only** the
 trace in its planning phase (its words: _"Phase 0 genuinely replaced crawling… the trace gave
 me everything"_), passed 14/14 tests, and the pipeline caught a real bug a blind crawl would
@@ -153,8 +154,8 @@ It reports six things:
 - **Quality grade** — a claude-md-style **A–F** over citation accuracy, currency, conciseness,
   and gotcha coverage, so "is the trace any good?" gets a number, not a vibe.
 - **Context footprint** — how much smaller an area's doc is than its code (compression — it fits
-  in context where the code doesn't). Not a per-task token bill: a capable agent greps rather than
-  loading an area whole, so measured token deltas are smaller; files-read and time are the robust wins.
+  in context where the code doesn't). It scores the *map* size, not the per-task saving; the measured
+  cold-vs-trace delta is **−64% input / −33% cost / −59% time** (medians, 5 tasks / 2 repos — see benchmarks).
 
 A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); curating those markers
 and fixing broken citations is what moves it toward **A**. Track the grade over time — it's the

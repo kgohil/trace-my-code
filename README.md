@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a request such as 'add a hash-generator tool to the app', analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured: -56% files read, ~22x cheaper context, 92% citations resolve.">
+  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a request such as 'add a hash-generator tool to the app', analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured across 5 tasks in 2 repos: -64% input tokens, -59% wall time, ~1/3 the files, same correct plan; 98% citations resolve.">
 </p>
 
 <p align="center"><sub>A self-improving <strong>agentic loop</strong>: set it up once, every commit keeps the domain map current, every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
@@ -31,7 +31,7 @@
 
 ## TL;DR
 
-**Your coding agent reads ~2 docs instead of crawling 25 files, reuses what already exists, and builds the right thing.** trace-my-code keeps a living map of your codebase — its domain language, architecture, and patterns — and makes the agent read it before it writes. Same task on a real monorepo, with vs without it: **−56% files read, −12% tokens, −20% wall time** — and it extended the existing code instead of bolting on a parallel copy.
+**Your coding agent reads ~2 docs instead of crawling 25 files, reuses what already exists, and builds the right thing.** trace-my-code keeps a living map of your codebase — its domain language, architecture, and patterns — and makes the agent read it before it writes. Cold vs trace, same planning task, across **5 tasks in 2 repos**: **−64% input tokens, −33% cost, −59% wall time**, ~⅓ the files — for the *same correct plan*. And where the domain is opaque, it extends the existing code instead of bolting on a parallel copy.
 
 **What it gives you**
 
@@ -103,23 +103,25 @@ The skill ships an effectiveness meter (the `/ctx-stats` analog). On a ~100k-lin
 
 | trace : code | citation accuracy | map vs area code | quality grade |
 |---|---|---|---|
-| **1 : 55** compression | **92%** of 237 citations resolve | ~3.7k vs ~81k → **map ~22× smaller** | **C / 75** (TODOs left to curate) |
+| **1 : 55** compression | **98%** of 237 citations resolve | ~3.7k vs ~81k → **map ~22× smaller** | **C / 77** (TODOs left to curate) |
 
-> **Compression ≠ a per-task token bill.** The 22× / 55× is how much *smaller* the map is than the code — which is why the map fits in context where the code doesn't. It is **not** the measured token saving: a capable agent greps rather than loading an area whole, so the real cold-vs-trace **total**-token delta is **−15%** (the A/B below). And even that understates the context win — the extra crawling is **input** tokens, while output (the plan) is ~constant and the fixed prompt is identical, so the true input delta is larger than −15%. **Files read (−76%)** and **time (−45%)** are the cleaner, robust proxies.
+> **Compression ≠ a per-task token bill.** The 22× / 55× is how much *smaller* the map is than the code — which is why the map fits in context where the code doesn't. It is **not** itself the saving: a capable agent greps rather than loading an area whole. The measured cold-vs-trace delta (the A/B below) is **−64% input tokens, −33% cost, −59% wall time** (medians across 5 tasks). Input falls most because crawling is mostly *input*; **cost** falls less because the cold arm's extra input is largely *cached* reads (billed cheap); wall time and files-read are the un-discounted wins.
 
 In that session an agent built, tested, and shipped a **brand-new tool** reading **only** the trace in its planning phase — its words, _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Run it on yours: `bash skills/trace-my-code/hooks/trace-stats.sh`.
 
-### Controlled A/B — cold vs trace (same repo as above, n=1)
+### Controlled A/B — cold vs trace, across repos (n=5)
 
-Same model, same planning task on that repo — _"plan adding a UUID Generator tool"_ — the only variable is whether the agent could read the trace:
+Same model, same planning task; the only variable is whether the agent can read the trace. Five fresh tasks across two repos — the Next.js app above and [honojs/hono](https://github.com/honojs/hono) (a 25k-line TS framework, trace bootstrapped on just the areas the tasks touch). Each arm is a real `claude -p --output-format json` run, full telemetry:
 
-| Arm | Files read | Agent tokens | Wall time | Plan |
-|---|--:|--:|--:|:--|
-| No trace (cold) | 17 | 99,402 | 70s | correct — but crawled 17 files to re-derive the pattern |
-| trace + reuse-first | **4** | **84,148** | **38s** | correct — read the trace, same plan |
-| **Δ** | **−76%** | **−15%** | **−45%** | identical plan, far less work |
+| Metric | Cold → Trace (median Δ) |
+|---|--:|
+| Input tokens | **−64%** |
+| Dollar cost | **−33%** |
+| Wall time | **−59%** |
+| Files opened / turns | ~5 → 2  /  7 → 2 |
+| Plan correctness | **same correct plan, 5/5** |
 
-Both reached the *same* correct plan (copy `password-generator`; create 4 files, modify 3) — so here the trace's win is pure **efficiency**: −76% fewer files read, −45% faster, for the same answer. Where the domain is more opaque, it also prevents wrong-pattern guesses — an earlier private-repo run had the cold agent build a **new parallel gate** while the trace agent **extended** the existing one, and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog). Map **and** discipline — and `trace-stats` scores both. Full method: [`benchmarks/`](benchmarks/).
+All five reached the **same correct plan** — both arms found the right canonical example to copy and the right registration mechanism — so in a *discoverable* repo the win is pure **efficiency**: finding the pattern ~3× cheaper, not a different answer. Cost falls less than input (−33% vs −64%) because the cold arm's extra reads are mostly *cached* (billed cheap). Where the domain is **opaque**, the trace also buys **correctness** — an earlier private-repo run had the cold agent build a **new parallel gate** while the trace agent **extended** the existing one, and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog). Full per-task table + honest limits: [`benchmarks/`](benchmarks/).
 
 ## Setup — one step, then it runs itself
 
