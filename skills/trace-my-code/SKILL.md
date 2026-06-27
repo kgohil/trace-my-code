@@ -47,16 +47,15 @@ applied here to a codebase instead of a research corpus.
   when the code it describes changes, so it never quietly rots into a lie.
 
 **Proven across repos.** Bootstrapped on a ~100k-line Next.js app, the trace measures (via the
-bundled `trace-stats`, below) **~22× smaller** per area than the code it covers (~3.7k vs ~81k
-tokens — it fits in context where the code doesn't) at **98% citation accuracy** across 237
-citations. On a cold-vs-trace A/B — 5 planning tasks across that app **and**
-[honojs/hono](https://github.com/honojs/hono) — the trace agent used **−64% input tokens, −33%
-cost, −59% wall time** (medians) and opened **~⅓ the files**, for the *same correct plan*; where
-the domain was opaque it also avoided a wrong-pattern rebuild the cold agent shipped.
-In the same session an agent built, tested, and shipped a brand-new tool reading **only** the
-trace in its planning phase (its words: _"Phase 0 genuinely replaced crawling… the trace gave
-me everything"_), passed 14/14 tests, and the pipeline caught a real bug a blind crawl would
-have shipped. The cost is one-time and durable; a crawl is re-paid on every task.
+bundled `trace-stats`, below) **~22× smaller** per area than the code (~3.7k vs ~81k tokens —
+fits in context where the code doesn't) at **98% citation accuracy** across 237 citations. On a
+cold-vs-trace A/B — 5 planning tasks across that app **and** [honojs/hono](https://github.com/honojs/hono)
+— the trace agent used **−64% input, −33% cost, −59% time** (medians), opened **~⅓ the files**,
+for the *same correct plan*; in an opaque domain it also dodged a wrong-pattern rebuild the cold
+agent shipped. In the same session an agent built, tested, and shipped a brand-new tool reading
+**only** the trace to plan it (_"Phase 0 genuinely replaced crawling… the trace gave me everything"_),
+passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. One-time cost; a crawl
+is re-paid every task.
 
 ## The trace (what gets written)
 
