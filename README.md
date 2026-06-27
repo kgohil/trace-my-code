@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a request such as 'add a hash-generator tool to the app', analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured across 5 tasks in 2 repos: -64% input tokens, -59% wall time, ~1/3 the files, same correct plan; 98% citations resolve.">
+  <img src="assets/agentic-loop.jpg" width="900" alt="The trace-my-code agentic loop: every commit/merge auto-updates the trace via the drift hook; the trace is a live domain map (DOMAIN, ARCHITECTURE, patterns, ADRs); the agent reads the map to comprehend a request such as 'add a hash-generator tool to the app', analyze it, and reuse the pattern; it ships the right implementation (extend, not reinvent), which feeds the next commit. Measured across 5 tasks in 2 repos: -64% input tokens, -33% cost, -59% wall time, ~1/3 the files, same correct plan; 98% citations resolve.">
 </p>
 
 <p align="center"><sub>A self-improving <strong>agentic loop</strong>: set it up once, every commit keeps the domain map current, every feature request reads it. Quality and accuracy up, tokens and time down.</sub></p>
@@ -40,9 +40,9 @@
 - **Self-maintaining** — a drift hook refreshes the docs on every change, so the map can't rot.
 - **Works in any agent** — Claude Code, Cursor, Codex, Gemini CLI, and ~20 more.
 
-[How it works ↓](#how-it-works) · [See the numbers ↓](#early-signal) · [Set it up ↓](#setup--one-step-then-it-runs-itself)
+[Set it up ↓](#setup--one-step-then-it-runs-itself) · [Why not a graph tool ↓](#why-this-not-an-auto-generated-code-graph) · [The numbers ↓](#the-numbers)
 
-## The problem it solves
+## What it solves
 
 Most agents can read files. Fewer understand the thing the files are about.
 
@@ -54,74 +54,18 @@ The quieter, more expensive failure is when the agent does not understand your d
 
 trace-my-code gives the agent a maintained map of both: what your system already has, and what your words actually mean. Then it makes the agent use that map before it writes code. Oval glasses optional. The effect is not mystical; it is just what happens when the senior has already read the codebase and remembers the names.
 
-## Before / after
+## Why this, not an auto-generated code graph?
 
-A real request, phrased the way a domain expert actually says it — full of jargon a fresh agent has to decode from scratch:
+The usual way to give an agent "codebase context" is to scan the whole repo into a queryable **graph or index** — nodes, edges, embeddings — and let the agent traverse it. trace-my-code is a different bet, and it sidesteps four costs that approach carries:
 
-> **"Tighten the conviction gate so weak-lens cards don't reach compilation."**
+- **You read the trace; you don't query a graph.** The trace is ~2 Markdown docs the agent pulls straight into context. A graph is something it has to *walk* — extra tool calls and tokens for every question, on every task.
+- **Curated and grounded, not auto-extracted.** A generated graph mirrors whatever the parser saw, noise included, and it can drift or assert things that were never true. The trace is written from the code, **cited by symbol**, and **drift-checked on every push** — so it can't quietly rot into a lie.
+- **Domain and the _why_, not just structure.** A graph maps files, imports, and call edges. It can't tell the agent that your "conviction gate" *is* `completion-guard.ts`, or why the team built it that way (the ADR). Decoding that jargon is the whole job on a real request.
+- **Cheap to keep current.** Indexers re-pay their full cost on every refresh. The trace bootstraps once; a git hook refreshes only the areas that changed.
 
-**Without the trace** — the agent crawls source to learn what a "card", "lens", "conviction gate", and "compilation" even are, then **builds a new parallel gate** from scratch:
-> read **9 files** · _"I'll add a new `conviction-guard.ts` module…"_ · confidence 4/5
+And one thing a reference graph never does: the trace **changes how the agent writes**, not just what it reads — it drives a reuse ladder, so the agent extends the gate that exists instead of bolting on a second one.
 
-**With the trace** — the agent reads the map, understands the domain words, finds the gate that already exists, and **extends it**:
-> read **4 files** · _"Rung 2 — extend `completion-guard.ts › evaluateCompletionGuard`; the per-card `confidence` / `sentiment` / `lensMode` it needs are already persisted — no new column. Safety floor: explicit thresholds + one runnable test kept."_ · confidence 5/5
-
-Same request, same model. The trace agent read **56% fewer files**, spent **12% fewer tokens**, finished **20% faster**, and — the part that matters — **built the right thing by reusing the existing gate instead of bolting a second one beside it**. (Measured run, n=1; method in [`benchmarks/`](benchmarks/).)
-
-Another shape of the same win — a CSV export request, where a cold agent over-builds:
-> **Without:** _"add a `csv-stringify` dependency + a new `ExportService`"_ (a date-picker lib too).
-> **With:** _"rung 4 — native `<input type=\"date\">`, no lib; rung 7 — one-line CSV join; extend the existing export procedure. Validation + auth-scoping kept."_
-
-## How it works
-
-Two pieces. The second is what keeps the first from becoming shelfware.
-
-1. **The map** (persistent, kept current). Curated Markdown next to the code: `DOMAIN.md` (the contexts + language), per-module `ARCHITECTURE.md` (the flow, the **patterns & extension points**, the **invariants & absences**, the **external/out-of-repo** systems), and `ADRs` (the _why_). Symbol-anchored citations, Obsidian-vault compatible. This is where the agent learns that a "card", a "lens", a "gate", and "compilation" are not vibes. They are your system.
-2. **The discipline** (understand-first, reuse-first). Before writing code, the agent reads the map, translates your request into the repo's actual domain and architecture, then climbs a ladder, stopping at the first rung that holds:
-
-```
-1. Does this need to exist at all?   → no: skip it (YAGNI)
-2. Already in this codebase?         → reuse / extend it   (the map names the canonical example)
-3. Standard library does it?         → use it
-4. Native platform feature?          → use it
-5. Installed dependency?             → use it
-6. One line?                          → one line
-7. Only then: the minimum new code that works
-```
-
-A **safety floor** is never on the chopping block: input validation, error handling that prevents data loss, security, accessibility, and anything explicitly requested. The ladder cuts code, never correctness.
-
-The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from free-associating. Together they close an **agentic loop** — commit → the trace refreshes itself → the agent reads it → ships the right change → which feeds the next commit — so the agent understands the request sooner, plans from a couple of reads, reuses what exists, and fixes shared code once.
-
-## Early signal
-
-Two kinds of evidence: a meter you run on your own repo, and a controlled A/B.
-
-### Measure your own repo — `trace-stats`
-
-The skill ships an effectiveness meter (the `/ctx-stats` analog). On a ~100k-line Next.js app, one working session that added two tools, repaired a red test suite, ran SEO, and upgraded a scaffolding command — **every task planned from the trace** — it reports:
-
-| trace : code | citation accuracy | map vs area code | quality grade |
-|---|---|---|---|
-| **1 : 55** compression | **98%** of 237 citations resolve | ~3.7k vs ~81k → **map ~22× smaller** | **C / 77** (TODOs left to curate) |
-
-> **Compression ≠ a per-task token bill.** The 22× / 55× is how much *smaller* the map is than the code — which is why the map fits in context where the code doesn't. It is **not** itself the saving: a capable agent greps rather than loading an area whole. The measured cold-vs-trace delta (the A/B below) is **−64% input tokens, −33% cost, −59% wall time** (medians across 5 tasks). Input falls most because crawling is mostly *input*; **cost** falls less because the cold arm's extra input is largely *cached* reads (billed cheap); wall time and files-read are the un-discounted wins.
-
-In that session an agent built, tested, and shipped a **brand-new tool** reading **only** the trace in its planning phase — its words, _"Phase 0 genuinely replaced crawling… the trace gave me everything"_ — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Run it on yours: `bash skills/trace-my-code/hooks/trace-stats.sh`.
-
-### Controlled A/B — cold vs trace, across repos (n=5)
-
-Same model, same planning task; the only variable is whether the agent can read the trace. Five fresh tasks across two repos — the Next.js app above and [honojs/hono](https://github.com/honojs/hono) (a 25k-line TS framework, trace bootstrapped on just the areas the tasks touch). Each arm is a real `claude -p --output-format json` run, full telemetry:
-
-| Metric | Cold → Trace (median Δ) |
-|---|--:|
-| Input tokens | **−64%** |
-| Dollar cost | **−33%** |
-| Wall time | **−59%** |
-| Files opened / turns | ~5 → 2  /  7 → 2 |
-| Plan correctness | **same correct plan, 5/5** |
-
-All five reached the **same correct plan** — both arms found the right canonical example to copy and the right registration mechanism — so in a *discoverable* repo the win is pure **efficiency**: finding the pattern ~3× cheaper, not a different answer. Cost falls less than input (−33% vs −64%) because the cold arm's extra reads are mostly *cached* (billed cheap). Where the domain is **opaque**, the trace also buys **correctness** — an earlier private-repo run had the cold agent build a **new parallel gate** while the trace agent **extended** the existing one, and a map-only version even **hallucinated a vendor** (said Langfuse; the repo uses PostHog). Full per-task table + honest limits: [`benchmarks/`](benchmarks/).
+> A map you **read and reuse from** — not a graph you pay to build, store, and walk.
 
 ## Setup — one step, then it runs itself
 
@@ -159,6 +103,61 @@ Then, in your repo, you do **one thing**:
 **That's it.** The drift hook is **on by default** in **rewrite** mode: when code in a traced area changes, it refreshes the affected docs and commits them to the **working/PR branch** (PR branch in CI, current branch locally) — **never directly to `main`**. No Claude credential in CI? It degrades to **flag** (a PR comment). Want warn-only everywhere? Set `TRACE_MY_CODE_MODE=flag`. Details + manual override: [`install.md`](skills/trace-my-code/install.md).
 
 From then on it's automatic: **every change refreshes the trace, and every feature request reads it.** You write code; the map maintains itself.
+
+## How it works
+
+Two pieces. The second is what keeps the first from becoming shelfware.
+
+1. **The map** (persistent, kept current). Curated Markdown next to the code: `DOMAIN.md` (the contexts + language), per-module `ARCHITECTURE.md` (the flow, the **patterns & extension points**, the **invariants & absences**, the **external/out-of-repo** systems), and `ADRs` (the _why_). Symbol-anchored citations, Obsidian-vault compatible. This is where the agent learns that a "card", a "lens", a "gate", and "compilation" are not vibes. They are your system.
+2. **The discipline** (understand-first, reuse-first). Before writing code, the agent reads the map, translates your request into the repo's actual domain and architecture, then climbs a ladder, stopping at the first rung that holds:
+
+```
+1. Does this need to exist at all?   → no: skip it (YAGNI)
+2. Already in this codebase?         → reuse / extend it   (the map names the canonical example)
+3. Standard library does it?         → use it
+4. Native platform feature?          → use it
+5. Installed dependency?             → use it
+6. One line?                          → one line
+7. Only then: the minimum new code that works
+```
+
+A **safety floor** is never on the chopping block: input validation, error handling that prevents data loss, security, accessibility, and anything explicitly requested. The ladder cuts code, never correctness.
+
+The map keeps the trace from rotting (a drift hook flags or refreshes docs when the code they describe changes, and warns when a cited symbol is renamed). The discipline keeps the agent from free-associating. Together they close an **agentic loop** — commit → the trace refreshes itself → the agent reads it → ships the right change → which feeds the next commit — so the agent understands the request sooner, plans from a couple of reads, reuses what exists, and fixes shared code once.
+
+## The numbers
+
+Same model, same planning task; the only variable is whether the agent can read the trace. Five fresh tasks across two repos — a ~100k-line Next.js app and [honojs/hono](https://github.com/honojs/hono) (a 25k-line TS framework, trace bootstrapped on just the areas the tasks touch). Each arm is a real `claude -p --output-format json` run, full telemetry:
+
+| Metric | Cold → Trace (median Δ) |
+|---|--:|
+| Input tokens | **−64%** |
+| Dollar cost | **−33%** |
+| Wall time | **−59%** |
+| Files opened / turns | ~5 → 2  /  7 → 2 |
+| Plan correctness | **same correct plan, 5/5** |
+
+All five reached the **same correct plan** — both arms found the right canonical example to copy and the right registration mechanism — so in a *discoverable* repo the win is pure **efficiency**: finding the pattern ~3× cheaper, not a different answer. Cost falls less than input (−33% vs −64%) because the cold arm's extra reads are mostly *cached* (billed cheap). Where the domain is **opaque**, the trace also buys **correctness** — see the parallel-gate example just below.
+
+In the same session that produced these numbers, an agent built, tested, and shipped a **brand-new tool** reading **only** the trace to plan it — passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. Full per-task table, honest limits, and the trace-health meter (`trace-stats`): [`benchmarks/`](benchmarks/).
+
+## Before / after
+
+A real request, phrased the way a domain expert actually says it — full of jargon a fresh agent has to decode from scratch:
+
+> **"Tighten the conviction gate so weak-lens cards don't reach compilation."**
+
+**Without the trace** — the agent crawls source to learn what a "card", "lens", "conviction gate", and "compilation" even are, then **builds a new parallel gate** from scratch:
+> read **9 files** · _"I'll add a new `conviction-guard.ts` module…"_ · confidence 4/5
+
+**With the trace** — the agent reads the map, understands the domain words, finds the gate that already exists, and **extends it**:
+> read **4 files** · _"Rung 2 — extend `completion-guard.ts › evaluateCompletionGuard`; the per-card `confidence` / `sentiment` / `lensMode` it needs are already persisted — no new column. Safety floor: explicit thresholds + one runnable test kept."_ · confidence 5/5
+
+Same request, same model. The trace agent read **56% fewer files**, finished **20% faster**, and — the part that matters — **built the right thing by reusing the existing gate instead of bolting a second one beside it**. (Measured run on a private repo, the opaque-domain case; n=1, method in [`benchmarks/`](benchmarks/).)
+
+Another shape of the same win — a CSV export request, where a cold agent over-builds:
+> **Without:** _"add a `csv-stringify` dependency + a new `ExportService`"_ (a date-picker lib too).
+> **With:** _"rung 4 — native `<input type=\"date\">`, no lib; rung 7 — one-line CSV join; extend the existing export procedure. Validation + auth-scoping kept."_
 
 ## In the box (full detail)
 
