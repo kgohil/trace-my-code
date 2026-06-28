@@ -4,6 +4,42 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
+## [0.8.0] - 2026-06-26
+
+### Added
+
+- **`trace-eval` — effectiveness + curation meter** (`hooks/trace-eval.sh`, the `/ctx-stats` analog).
+  Reports coverage, map compression, citation health, freshness, a context footprint, and a
+  claude-md-style **A–F quality grade** over citation accuracy, currency, conciseness, **patterns
+  coverage** (the reuse-first section that stops reinvention), and gotcha coverage. Plus a
+  **what-to-curate worklist** — the weakest docs worst-first, each tagged with the criterion it's
+  missing (assess-before-you-edit) — and **`--gaps`**, the undocumented-significant-dirs bootstrap
+  list. `--json` for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only.
+- **`/trace-stats` slash command + `--usage` view** — a `UserPromptSubmit` hook
+  (`hooks/trace-stats-command.sh`) runs the meter when you type `/trace-stats [flags]` and prints it
+  inline, **zero model tokens** (the `/caveman-stats` pattern). Defaults to the new **`--usage`**
+  view — what the trace saved you: activity (trace-doc reads / areas / sessions / drift, from local
+  transcripts + git) plus modeled impact (the no-priors A/B multiplier). Self-gates on a real trace;
+  pure bash.
+- **Cross-repo benchmark.** `benchmarks/` now leads with a cold-vs-trace A/B over **5 planning
+  tasks across 2 repos** (multi-tool-app + honojs/hono): median **−64% input / −33% cost / −59%
+  time**, same correct plan; raw per-task telemetry in `benchmarks/runs/`. Plus measured
+  `trace-eval` numbers from a ~100k-line app (1:55 compression, **98% citation accuracy**).
+
+### Changed
+
+- **SKILL.md** documents the effectiveness meter and the proven-on-a-real-repo benefits.
+- **Authoring discipline** folds in `/claude-md-improver` + `revise-claude-md` learnings: an explicit
+  **avoid-list** (don't restate the code, DOMAIN content, or generic advice — in SKILL Guardrails +
+  the ARCHITECTURE template), a **structured Mode-A reflection** that routes each harvested learning to
+  its doc section (pattern→Patterns, gotcha→Gotchas, invariant→Invariants, vendor→External), and a
+  **report-before-edit** curation flow driven by `trace-eval`'s worklist (the `#`-key reflex applied
+  to architecture docs). Adds a **caveman compression discipline** for doc prose — write dense (drop
+  filler), but never compress away the precision (invariants/absences, branch conditions, magic numbers,
+  citations): "compress the prose, not the precision."
+- **benchmarks/README** swaps opaque private-project anecdotes for the `trace-eval` meter and the
+  real-session numbers; keeps the controlled cold-vs-trace A/B (generalized).
+
 ## [0.7.0] - 2026-06-24
 
 ### Added

@@ -70,8 +70,10 @@ not trusted output — ground what you can, flag the rest.
 - **Apply the split heuristic from the start** (`references/doc-splitting.md`): emit an
   index + focused files, not three giant docs.
 - **Obsidian format** throughout (frontmatter + `[[wikilinks]]`).
-- **Tell the user it's a draft** and point them at the `_TODO_` markers to curate. The
-  measured value of curated docs comes _after_ a human verifies them.
+- **Tell the user it's a draft**, then curate **worst-first** with `trace-eval` (run
+  `bash hooks/trace-eval.sh` — its _what to curate_ worklist ranks the weak docs and names the exact
+  criterion each is missing; `--gaps` lists significant dirs still to bootstrap). The measured value
+  of curated docs comes _after_ a human verifies them.
 
 ## Scope control
 

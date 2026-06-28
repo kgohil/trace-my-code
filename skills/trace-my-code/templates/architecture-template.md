@@ -10,6 +10,15 @@ updated: YYYY-MM-DD
 > The detail layer for `<path/to/module>`. Read before changing it.
 > Companion: [[../../docs/DOMAIN|DOMAIN]] (the map) · [[../../docs/adrs/README|ADRs]] (why).
 
+<!-- Authoring rule.
+     WHAT (claude-md avoid-list): capture only the non-obvious — flow-under-conditions, the reuse seam,
+     invariants/absences, the why, the gotcha. DON'T restate the happy path, anything the
+     signatures/types already say, DOMAIN content, or generic advice. Empty section → delete it, don't pad.
+     HOW (caveman compression): write each line dense — drop articles/filler/hedging, fragments fine,
+     short synonyms. But keep PRECISE, never compress: invariants/absences, branch conditions, magic
+     numbers + source, citations/values/versions. Losing a condition or an absence is a bug, not brevity.
+     trace-eval grades you on exactly this. -->
+
 One-paragraph: what this module does and which bounded context it belongs to.
 
 ## Flow

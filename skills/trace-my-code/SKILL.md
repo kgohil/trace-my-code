@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.7.0"
+    version: "0.8.0"
     phase: understand
 ---
 
@@ -45,6 +45,17 @@ applied here to a codebase instead of a research corpus.
   front makes large refactors safe; you change with the contract in view.
 - **Always current** — a drift check (git hook or CI) flags or refreshes the trace
   when the code it describes changes, so it never quietly rots into a lie.
+
+**Proven across repos.** Bootstrapped on a ~100k-line Next.js app, the trace measures (via the
+bundled `trace-eval`, below) **~22× smaller** per area than the code (~3.7k vs ~81k tokens —
+fits in context where the code doesn't) at **98% citation accuracy** across 237 citations. On a
+cold-vs-trace A/B — 5 planning tasks across that app **and** [honojs/hono](https://github.com/honojs/hono)
+— the trace agent used **−64% input, −33% cost, −59% time** (medians), opened **~⅓ the files**,
+for the *same correct plan*; in an opaque domain it also dodged a wrong-pattern rebuild the cold
+agent shipped. In the same session an agent built, tested, and shipped a brand-new tool reading
+**only** the trace to plan it (_"Phase 0 genuinely replaced crawling… the trace gave me everything"_),
+passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. One-time cost; a crawl
+is re-paid every task.
 
 ## The trace (what gets written)
 
@@ -79,9 +90,20 @@ together: no central index, just links between roots. See `references/multi-repo
 - **Mode 0 — bootstrap** (`references/bootstrap.md`): on a fresh repo, generate the
   initial trace (DOMAIN.md + per-area ARCHITECTURE.md skeletons + seed ADRs), grounded
   in code with `_TODO: confirm_` on anything unverified. A draft to curate — it kills
-  the blank page.
-- **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**,
-  cite `path:line`, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs.
+  the blank page. Then curate **worst-first**: `trace-eval` ranks the weak docs and names
+  each missing criterion; `--gaps` lists significant dirs still to bootstrap.
+- **Mode A — author / maintain**: write or update a doc/ADR from the **code + schema**, cite by
+  symbol, link related nodes with `[[wikilinks]]`. Capture the _why_ in ADRs. **Harvest what was
+  missing** (the `#`-key reflex, applied to architecture docs) — after each task, run this reflection
+  and fold every hit into the right section of the area doc:
+  - re-derived a pattern the trace should have named? → **Patterns & extension points**
+  - hit a gotcha, ordering trap, or stale comment? → **Gotchas**
+  - found an invariant, limit, or magic number? → **Invariants & absences** (cite its source)
+  - learned a 3rd-party system from an import? → **External / out-of-repo**
+  - a citation no longer resolved while you worked? → fix it in place
+
+  This is the trace's _experience-truth_, kept current the way the drift hook keeps its _code-truth_
+  current. `trace-eval`'s **what-to-curate** worklist (above) tells you which docs to harvest into first.
 - **Mode B — auto-update on drift** (`references/auto-update-contract.md`): **bootstrap
   wires this on by default** (CI workflow if the repo has `.github/`, else a local pre-push
   hook). It finds **code** changes in a traced area and **rewrites** the affected docs —
@@ -117,6 +139,48 @@ once and drifts). It's a soft reminder, not a hard gate. It **self-gates** — s
 tokens) in any repo without a trace — and costs ~100 input tokens/turn where a trace
 exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
 
+## Measuring effectiveness (`trace-eval`)
+
+Is the trace earning its keep — and what should you fix next? Run the bundled meter — the
+`/ctx-stats` analog — from any repo root (pure bash + git, reads only):
+
+```
+bash hooks/trace-eval.sh              # the report + a "what to curate" worklist
+bash hooks/trace-eval.sh --citations  # also list every broken citation
+bash hooks/trace-eval.sh --gaps       # significant dirs with no ARCHITECTURE.md (bootstrap next)
+bash hooks/trace-eval.sh --usage      # what the trace saved (activity + modeled impact)
+bash hooks/trace-eval.sh --json       # machine-readable summary
+```
+
+Installed as a plugin? Type **`/trace-stats`** for the **usage stats** — what the trace saved you
+(activity from local transcripts + modeled impact). A `UserPromptSubmit` hook runs `trace-eval --usage`
+inline, **zero model tokens** (the `/caveman-stats` pattern). Pass `--gaps` / `--citations` / `--json`
+to switch to the health views.
+
+It reports:
+
+- **Coverage** — areas with an `ARCHITECTURE.md` vs significant source dirs. `--gaps` lists the
+  undocumented ones, most-code-first — the bootstrap worklist.
+- **Map compression** — trace tokens vs codebase tokens (proof you're reading the map, not the territory).
+- **Citation health** — how many `` `path › symbol` `` citations still resolve. The grounding metric;
+  the drift hook protects it, `trace-eval` scores it.
+- **Freshness** — Mode-B auto-refresh commits + open `_TODO: confirm_` curation debt.
+- **Quality grade** — a claude-md-style **A–F** over citation accuracy, currency, conciseness,
+  **patterns coverage** (does each area name its reuse-first canonical example — the section that
+  stops reinvention), and gotcha coverage. A number, not a vibe.
+- **Context footprint** — how much smaller an area's doc is than its code. It scores the *map* size,
+  not the per-task saving; the measured cold-vs-trace delta is **−64% input / −33% cost / −59% time**
+  (medians, 5 tasks / 2 repos — see benchmarks).
+- **What to curate** — the weakest docs, worst-first, each tagged with the exact criterion it's
+  missing (no Patterns section, broken citation, open `_TODO_`). **Run this before a curation pass**
+  and work the list top-down: assess before you edit (the claude-md report-first reflex), so you fix
+  what moves the grade instead of polishing what's already fine.
+
+A fresh bootstrap lands around **C** (structure solid, `_TODO_`s open); closing the worklist —
+confirming `_TODO_`s, adding the missing Patterns sections, fixing broken citations — is what moves
+it toward **A**. Track the grade over time: the single number that says whether the trace is an asset
+or rotting into a lie.
+
 ## Guardrails (why the trace stays trustworthy)
 
 - **Curated, not extracted.** The agent _writes_ the trace from code; it never trusts an
@@ -132,3 +196,19 @@ exists. Opt out with `TRACE_MY_CODE_NUDGE=off`.
   revertable commit — never a silent whole-file rewrite.
 - **Hierarchical + linked.** Files mirror the code tree and link across areas (and across
   repos), so context stays navigable as the system grows.
+- **Terse, and only the non-obvious.** The doc is the agent's prompt, so brevity is cost: one
+  line per concept; capture flow, gotchas, invariants, and the _why_, and never restate what the
+  code already makes plain (claude-md discipline). `trace-eval` grades conciseness + currency,
+  so this stays measurable, not aspirational.
+- **Don't capture the obvious** (the claude-md avoid-list). Skip the happy path a reader gets straight
+  from the code, anything the signatures/types already state, DOMAIN content duplicated into an
+  ARCHITECTURE doc, generic best-practice advice, and one-off fixes unlikely to recur. A doc that
+  restates the code is worse than none — maintenance cost, zero signal. Keep only flow-under-conditions,
+  the reuse seam, invariants/absences, the _why_, and the gotcha.
+- **Compress the prose, not the precision** (caveman discipline). Within a kept line, write dense: drop
+  articles, filler, hedging, and connective fluff; fragments are fine; short synonyms (`use`, not
+  `utilize`) — the doc is the agent's prompt, so every token is context cost. But the precision is
+  **read-only**: never compress away an **invariant or absence** (a dropped "NOT enforced" makes the
+  agent assume the guard exists), a **branch condition** (`when X → A, else B`), a **magic number and its
+  source**, or a security gotcha — and never touch a citation `` `path › symbol` ``, value, version, or
+  path. Terseness that loses a condition or an absence is a bug, not brevity.

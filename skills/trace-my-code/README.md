@@ -41,6 +41,10 @@ What it improves:
   navigable map.
 - **Multi-repo** — a service's trace links to the root trace of the services it calls, so an
   agent can walk an end-to-end flow across microservices checked out side by side.
+- **Measure it** — a `trace-eval` meter grades the trace's health (coverage, citation accuracy, an
+  **A–F** grade, a *what-to-curate* worklist, `--gaps`); and **`/trace-stats`** (or `trace-eval.sh
+  --usage`) shows **what the trace saved you** — activity (reads / areas / sessions / drift) plus
+  modeled impact. A `UserPromptSubmit` hook prints either inline, **zero model tokens**.
 
 ## Install (any agent: Claude Code, Cursor, Codex, Copilot, …)
 
@@ -58,6 +62,9 @@ trace-my-code/
   templates/                    # Obsidian-ready DOMAIN.md + ARCHITECTURE.md + ADR templates
   hooks/doc-drift.sh            # freshness hook (git pre-push or CI) + citation check
   hooks/doc-drift.yml.example   # CI workflow variant
+  hooks/trace-eval.sh           # effectiveness meter (health · --usage · --gaps · --citations · --json)
+  hooks/trace-stats-command.sh  # /trace-stats slash command (UserPromptSubmit, zero model tokens)
+  hooks/reuse-first-nudge.sh    # on-by-default reuse-first reminder (UserPromptSubmit)
   references/                   # bootstrap · auto-update contract · reuse-first · doc-splitting ·
                                 #   obsidian format · multi-repo · routing rule
   install.md

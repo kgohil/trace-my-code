@@ -71,7 +71,8 @@ check_citations() {
       path="${cite%% › *}"; sym="${cite##* › }"
       path="${path#\`}"; sym="${sym%\`}"
       sym="${sym%%(*}"                                    # drop "(...)"
-      sym="$(printf '%s' "$sym" | tr -cd '[:alnum:]_')"   # bare identifier
+      # last identifier — handles member access (`RootState.selectedModel` → `selectedModel`)
+      sym="$(printf '%s' "$sym" | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | tail -1)"
       [ -n "$path" ] && [ -n "$sym" ] || continue
       file="$ROOT/$path"
       if [ ! -f "$file" ]; then
