@@ -1,7 +1,7 @@
 {
   "name": "trace-my-code",
-  "version": "0.8.0",
-  "description": "An agent skill: curated, self-refreshing architecture + domain docs (Obsidian-format, drift hook) that let a coding agent understand your domain and reuse what already exists instead of rebuilding it.",
+  "version": "0.9.0",
+  "description": "An agent skill that makes your coding agent fluent in your codebase. A living trace of domain, architecture, and patterns it reads before building — so features fit and nothing gets rebuilt.",
   "author": {
     "name": "kgohil",
     "url": "https://github.com/kgohil"
