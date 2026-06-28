@@ -44,7 +44,9 @@ Show the `trace-eval` report, then propose the **single highest-value next step*
 signals (don't list all of them — pick the top one):
 
 - **Broken citations** (`--citations`) → fix them; the grounding metric is the first thing to protect.
-- **Open `_TODO: confirm_`** → confirm worst-first per the what-to-curate worklist (the C→A path).
+- **Open `_TODO: confirm_`** → confirm them (the C→A path). The freshness **"curation debt"** count
+  and `grep -rn '_TODO: confirm_'` cover **all** docs (ADRs + DOMAIN included); the **what-to-curate**
+  worklist ranks the **ARCHITECTURE** docs specifically, so check both — `_TODO_`s often live in ADRs.
 - **`--gaps` non-empty** → bootstrap the biggest undocumented dir (most code first).
 - **Drift loop not wired** → wire it (recommend the CI Action) so it stops rotting silently.
 - **Routing rule missing** → add it, or the trace is written but never read.
