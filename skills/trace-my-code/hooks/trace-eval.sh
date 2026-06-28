@@ -25,7 +25,7 @@ done
 toks()  { wc -c | awk '{printf "%d", int($1/4)}'; }          # ~4 chars/token
 pct()   { awk -v n="$1" -v d="$2" 'BEGIN{printf "%d", (d>0)? (100*n/d) : 0}'; }
 bar()   { awk -v p="$1" 'BEGIN{f=int(p/10); s=""; for(i=0;i<10;i++) s=s (i<f?"#":"-"); printf "%s", s}'; }
-comma() { printf '%d' "$1" | sed -e ':a' -e 's/\([0-9]\)\([0-9]\{3\}\)\b/\1,\2/;ta'; }
+comma() { printf '%d' "$1" | sed -e ':a' -e 's/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/;ta'; }  # BSD+GNU safe (no \b)
 
 # ---- collect trace docs (the map) -------------------------------------------
 DOCS=()

@@ -13,9 +13,10 @@ set -o pipefail
 [ "${TRACE_MY_CODE_NUDGE:-on}" = "off" ] && exit 0
 
 event="$(cat 2>/dev/null || true)"
-# Fast path: only act when the submitted prompt carries the /trace-stats command.
+# Fast path: only act when the prompt *value starts with* /trace-stats — not a mid-sentence
+# mention (e.g. "what does /trace-stats show?"). Tolerate both common JSON colon spacings.
 case "$event" in
-  *'"prompt"'*'/trace-stats'*) : ;;
+  *'"prompt":"/trace-stats'*|*'"prompt": "/trace-stats'*) : ;;
   *) exit 0 ;;
 esac
 
