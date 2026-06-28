@@ -15,9 +15,12 @@ the skill via `version:` in `skills/trace-my-code/SKILL.md`.
   **what-to-curate worklist** — the weakest docs worst-first, each tagged with the criterion it's
   missing (assess-before-you-edit) — and **`--gaps`**, the undocumented-significant-dirs bootstrap
   list. `--json` for CI, `--citations` to list broken ones. Pure bash (3.2+), reads only.
-- **`/trace-eval` slash command** — a `UserPromptSubmit` hook (`hooks/trace-eval-command.sh`) runs
-  the meter when you type `/trace-eval [flags]` and prints its report inline, **zero model tokens**
-  (the `/caveman-stats` pattern). Registered alongside the reuse-first nudge; pure bash.
+- **`/trace-stats` slash command + `--usage` view** — a `UserPromptSubmit` hook
+  (`hooks/trace-stats-command.sh`) runs the meter when you type `/trace-stats [flags]` and prints it
+  inline, **zero model tokens** (the `/caveman-stats` pattern). Defaults to the new **`--usage`**
+  view — what the trace saved you: activity (trace-doc reads / areas / sessions / drift, from local
+  transcripts + git) plus modeled impact (the no-priors A/B multiplier). Self-gates on a real trace;
+  pure bash.
 - **Cross-repo benchmark.** `benchmarks/` now leads with a cold-vs-trace A/B over **5 planning
   tasks across 2 repos** (multi-tool-app + honojs/hono): median **−64% input / −33% cost / −59%
   time**, same correct plan; raw per-task telemetry in `benchmarks/runs/`. Plus measured

@@ -148,12 +148,14 @@ Is the trace earning its keep — and what should you fix next? Run the bundled 
 bash hooks/trace-eval.sh              # the report + a "what to curate" worklist
 bash hooks/trace-eval.sh --citations  # also list every broken citation
 bash hooks/trace-eval.sh --gaps       # significant dirs with no ARCHITECTURE.md (bootstrap next)
+bash hooks/trace-eval.sh --usage      # what the trace saved (activity + modeled impact)
 bash hooks/trace-eval.sh --json       # machine-readable summary
 ```
 
-Installed as a plugin? Just type **`/trace-eval`** (with `--gaps` / `--citations` / `--json`) — a
-`UserPromptSubmit` hook runs the meter and prints the report inline, **zero model tokens** (the
-`/caveman-stats` pattern).
+Installed as a plugin? Type **`/trace-stats`** for the **usage stats** — what the trace saved you
+(activity from local transcripts + modeled impact). A `UserPromptSubmit` hook runs `trace-eval --usage`
+inline, **zero model tokens** (the `/caveman-stats` pattern). Pass `--gaps` / `--citations` / `--json`
+to switch to the health views.
 
 It reports:
 

@@ -9,6 +9,7 @@
 #   bash trace-eval.sh                 # the report (+ a "what to curate" worklist)
 #   bash trace-eval.sh --citations     # also list every broken citation
 #   bash trace-eval.sh --gaps          # significant dirs with no ARCHITECTURE.md (bootstrap next)
+#   bash trace-eval.sh --usage         # what the trace saved (activity + modeled impact)
 #   bash trace-eval.sh --json          # machine-readable summary
 #
 # Pure bash (3.2+) + git + awk/grep — no deps, no network, reads only (never writes).
@@ -16,9 +17,9 @@ set -o pipefail
 
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT" || exit 1
-LIST_CITATIONS=0; AS_JSON=0; SHOW_GAPS=0
+LIST_CITATIONS=0; AS_JSON=0; SHOW_GAPS=0; SHOW_USAGE=0
 for a in "$@"; do
-  case "$a" in --citations) LIST_CITATIONS=1;; --json) AS_JSON=1;; --gaps) SHOW_GAPS=1;; esac
+  case "$a" in --citations) LIST_CITATIONS=1;; --json) AS_JSON=1;; --gaps) SHOW_GAPS=1;; --usage) SHOW_USAGE=1;; esac
 done
 
 toks()  { wc -c | awk '{printf "%d", int($1/4)}'; }          # ~4 chars/token
@@ -69,6 +70,45 @@ if [ "$SHOW_GAPS" -eq 1 ]; then
     printf '  %4d files  %s\n' "$cnt" "$dir"; found=$((found+1))
   done < <(printf '%s\n' "${CODE[@]}" | sed 's#/[^/]*$##' | sort | uniq -c | awk '$1>=3{print $1, $2}' | sort -rn)
   [ "$found" -eq 0 ] && echo "  (none — every significant dir has an ARCHITECTURE.md)"
+  exit 0
+fi
+
+# ---- --usage: what the trace saved (activity from local transcripts + modeled) ----
+if [ "$SHOW_USAGE" -eq 1 ]; then
+  proj="$HOME/.claude/projects/$(printf '%s' "$ROOT" | sed 's#/#-#g')"
+  rx="$(printf '%s' "$ROOT" | sed 's/[][\.^$*+?(){}|]/\\&/g')"   # repo root, ERE-escaped
+  pat="\"file_path\":\"$rx/[^\"]*(ARCHITECTURE|DOMAIN)\.md\"|\"file_path\":\"$rx/docs/adrs/[^\"]*\.md\""
+  reads=$(grep -hoE "$pat" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' '); reads=${reads:-0}
+  arch_r=$(grep -hoE "\"file_path\":\"$rx/[^\"]*ARCHITECTURE\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+  dom_r=$(grep -hoE "\"file_path\":\"$rx/[^\"]*DOMAIN\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+  adr_r=$(grep -hoE "\"file_path\":\"$rx/docs/adrs/[^\"]*\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+  areas_used=$(grep -hoE "\"file_path\":\"$rx/[^\"]*ARCHITECTURE\.md\"" "$proj"/*.jsonl 2>/dev/null | sort -u | wc -l | tr -d ' ')
+  sess_total=0; sess_trace=0
+  for f in "$proj"/*.jsonl; do
+    [ -f "$f" ] || continue
+    sess_total=$((sess_total+1))
+    grep -qE "$pat" "$f" 2>/dev/null && sess_trace=$((sess_trace+1))
+  done
+  drift=$(git log --oneline --grep 'auto-refresh architecture' 2>/dev/null | wc -l | tr -d ' ')
+  # modeled per-task deltas: no-priors regime (multi-tool-app A/B medians, benchmarks/runs)
+  tasks=$sess_trace
+  m_files=$((tasks*4)); m_in=$((tasks*210000)); m_min=$(( (tasks*28)/60 ))
+  m_cost=$(awk -v t="$tasks" 'BEGIN{printf "%.2f", t*0.77}')
+  echo "trace-my-code · usage · $(basename "$ROOT")"
+  echo "──────────────────────────────────────────────"
+  echo "ACTIVITY   (measured — this repo's recorded sessions)"
+  echo "  trace-doc reads     ${reads:-0}   (ARCHITECTURE ×${arch_r:-0} · DOMAIN ×${dom_r:-0} · ADR ×${adr_r:-0})"
+  echo "  areas used          ${areas_used:-0} / $N_ARCH documented"
+  echo "  sessions w/ trace   $sess_trace / $sess_total"
+  echo "  drift refreshes     ${drift:-0} commits"
+  echo
+  echo "MODELED IMPACT   (no-priors multiplier × activity — NOT measured)"
+  echo "  tasks (~ sessions w/ trace)  ~$tasks"
+  echo "  files not crawled            ~$m_files     ($tasks × ~4 / task)"
+  echo "  input not spent              ~$(comma "$m_in") tok   ($tasks × ~210k / task)"
+  echo "  wall time saved              ~$m_min min     ($tasks × ~28s / task)"
+  echo "  \$ not spent                  ~\$$m_cost"
+  echo "  ↳ multiplier = the no-priors A/B (benchmarks/runs); 1 task/session is conservative; modeled, not measured"
   exit 0
 fi
 RATIO=$(awk -v c="$CODE_TOK" -v d="$DOC_TOK" 'BEGIN{printf "%.1f", (d>0)? c/d : 0}')

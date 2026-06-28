@@ -69,8 +69,9 @@ bash hooks/trace-eval.sh --gaps   # significant dirs with no ARCHITECTURE.md (bo
 bash hooks/trace-eval.sh --json   # machine-readable, for CI
 ```
 
-Or, with the plugin installed, type **`/trace-eval`** in chat (also `--gaps` / `--citations` /
-`--json`) — a `UserPromptSubmit` hook runs the meter and prints the report inline, zero model tokens.
+Or, with the plugin installed, type **`/trace-stats`** in chat — the trace's **usage stats** (what it
+saved you); pass `--gaps` / `--citations` / `--json` for the health views. A `UserPromptSubmit` hook
+runs the meter and prints it inline, zero model tokens.
 
 A fresh bootstrap grades around **C** (structure solid, `_TODO_`s open); working the meter's
 **what-to-curate** worklist — confirming `_TODO_`s, adding missing Patterns sections, fixing broken

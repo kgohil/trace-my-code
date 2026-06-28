@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# trace-my-code — /trace-eval slash command (UserPromptSubmit hook).
+# trace-my-code — /trace-stats slash command (UserPromptSubmit hook).
 #
-# When the submitted prompt is "/trace-eval [flags]", run the trace-eval meter and
+# When the submitted prompt is "/trace-stats [flags]", run the trace-eval meter and
 # return its output directly — blocking the prompt so it never reaches the model
-# (zero model tokens), the same pattern as /caveman-stats. Any other prompt: silent.
+# (zero model tokens), the /caveman-stats pattern. Default view is the usage stats
+# (what the trace saved); pass flags (--gaps / --citations / --json) to override.
+# Any other prompt: silent.
 #
 # Pure bash + its trace-eval.sh sibling — no deps. Opt out with TRACE_MY_CODE_NUDGE=off.
 set -o pipefail
@@ -11,17 +13,17 @@ set -o pipefail
 [ "${TRACE_MY_CODE_NUDGE:-on}" = "off" ] && exit 0
 
 event="$(cat 2>/dev/null || true)"
-# Fast path: only act when the submitted prompt carries the /trace-eval command.
+# Fast path: only act when the submitted prompt carries the /trace-stats command.
 case "$event" in
-  *'"prompt"'*'/trace-eval'*) : ;;
+  *'"prompt"'*'/trace-stats'*) : ;;
   *) exit 0 ;;
 esac
 
-# Pull "/trace-eval [flags]" out of the event (flags are alnum / space / dash / underscore).
-cmd="$(printf '%s' "$event" | grep -oE '/trace-eval[A-Za-z0-9 _-]*' | head -1)"
+cmd="$(printf '%s' "$event" | grep -oE '/trace-stats[A-Za-z0-9 _-]*' | head -1)"
 [ -n "$cmd" ] || exit 0
-argstr="${cmd#/trace-eval}"; argstr="${argstr# }"
+argstr="${cmd#/trace-stats}"; argstr="${argstr# }"
 read -r -a args <<< "$argstr"
+[ "${#args[@]}" -eq 0 ] && args=(--usage)   # default view = usage stats
 
 # Self-gate: only report when a real trace exists (docs/DOMAIN.md or a module
 # ARCHITECTURE.md) — same check as the reuse-first nudge. A docs-only repo isn't a trace.
@@ -33,7 +35,7 @@ elif find "$root" -maxdepth 5 -name ARCHITECTURE.md -not -path '*/node_modules/*
   has_trace=1
 fi
 if [ "$has_trace" -ne 1 ]; then
-  printf '%s\n' '{"decision":"block","reason":"trace-my-code: no trace in this repo yet. Bootstrap one with the trace-my-code skill, then /trace-eval reports its health."}'
+  printf '%s\n' '{"decision":"block","reason":"trace-my-code: no trace in this repo yet. Bootstrap one with the trace-my-code skill, then /trace-stats reports its usage."}'
   exit 0
 fi
 
