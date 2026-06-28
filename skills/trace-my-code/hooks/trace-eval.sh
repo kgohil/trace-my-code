@@ -77,12 +77,13 @@ fi
 if [ "$SHOW_USAGE" -eq 1 ]; then
   proj="$HOME/.claude/projects/$(printf '%s' "$ROOT" | sed 's#/#-#g')"
   rx="$(printf '%s' "$ROOT" | sed 's/[][\.^$*+?(){}|]/\\&/g')"   # repo root, ERE-escaped
-  pat="\"file_path\":\"$rx/[^\"]*(ARCHITECTURE|DOMAIN)\.md\"|\"file_path\":\"$rx/docs/adrs/[^\"]*\.md\""
-  reads=$(grep -hoE "$pat" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' '); reads=${reads:-0}
-  arch_r=$(grep -hoE "\"file_path\":\"$rx/[^\"]*ARCHITECTURE\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
+  arch="\"file_path\":\"$rx/[^\"]*ARCHITECTURE\.md\""
+  pat="$arch|\"file_path\":\"$rx/[^\"]*DOMAIN\.md\"|\"file_path\":\"$rx/docs/adrs/[^\"]*\.md\""  # per-session check below
+  arch_r=$(grep -hoE "$arch" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
   dom_r=$(grep -hoE "\"file_path\":\"$rx/[^\"]*DOMAIN\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
   adr_r=$(grep -hoE "\"file_path\":\"$rx/docs/adrs/[^\"]*\.md\"" "$proj"/*.jsonl 2>/dev/null | wc -l | tr -d ' ')
-  areas_used=$(grep -hoE "\"file_path\":\"$rx/[^\"]*ARCHITECTURE\.md\"" "$proj"/*.jsonl 2>/dev/null | sort -u | wc -l | tr -d ' ')
+  reads=$((arch_r + dom_r + adr_r))                          # total = the three above, no extra grep
+  areas_used=$(grep -hoE "$arch" "$proj"/*.jsonl 2>/dev/null | sort -u | wc -l | tr -d ' ')
   sess_total=0; sess_trace=0
   for f in "$proj"/*.jsonl; do
     [ -f "$f" ] || continue
@@ -97,10 +98,10 @@ if [ "$SHOW_USAGE" -eq 1 ]; then
   echo "trace-my-code · usage · $(basename "$ROOT")"
   echo "──────────────────────────────────────────────"
   echo "ACTIVITY   (measured — this repo's recorded sessions)"
-  echo "  trace-doc reads     ${reads:-0}   (ARCHITECTURE ×${arch_r:-0} · DOMAIN ×${dom_r:-0} · ADR ×${adr_r:-0})"
-  echo "  areas used          ${areas_used:-0} / $N_ARCH documented"
+  echo "  trace-doc reads     $reads   (ARCHITECTURE ×$arch_r · DOMAIN ×$dom_r · ADR ×$adr_r)"
+  echo "  areas used          $areas_used / $N_ARCH documented"
   echo "  sessions w/ trace   $sess_trace / $sess_total"
-  echo "  drift refreshes     ${drift:-0} commits"
+  echo "  drift refreshes     $drift commits"
   echo
   echo "MODELED IMPACT   (no-priors multiplier × activity — NOT measured)"
   echo "  tasks (~ sessions w/ trace)  ~$tasks"
