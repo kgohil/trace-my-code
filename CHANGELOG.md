@@ -4,6 +4,31 @@ All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project versions
 the skill via `version:` in `skills/trace-my-code/SKILL.md`.
 
+## [0.9.0] - 2026-06-28
+
+### Added
+
+- **Onboarding router** (`references/onboarding.md` + a "Start here" section in `SKILL.md`). On a
+  bare invocation (`/trace`, `/trace-my-code`, "set this up") the skill now **derives the repo's
+  trace state in one pass** — does a trace exist, the `trace-eval` grade / broken citations / open
+  `_TODO_`s / `--gaps`, whether the drift loop is wired, the routing rule — and **routes**:
+  first-run → guided setup; returning → the report + the single highest-value next step. State is
+  derived from the repo each run, never stored. No more dumping all four modes and guessing.
+- **`/trace-stats` is now a discoverable slash command** (`commands/trace-stats.md`) — it shows in
+  the palette with help + argument hints and runs the meter standalone. The zero-model-token
+  `UserPromptSubmit` hook still answers the typed `/trace-stats` fast-path.
+- **`/trace` command** (`commands/trace.md`) — the discoverable entry point to the onboarding router.
+
+### Changed
+
+- **`install.md` leads with the recommendation.** The freshness loop is framed as the whole point,
+  with the **CI Action recommended** (auto-refresh on every PR, team-shared, needs `ANTHROPIC_API_KEY`)
+  and the **local pre-push hook as the fallback** (no API key in flag mode, per-clone) — each with a
+  one-line what/why. Stale `.claude/skills/...` paths clarified vs the source-repo path.
+- **Marketplace plugin entry now carries an explicit `version`** (`.claude-plugin/marketplace.json`),
+  matching `plugin.json`, plus an install.md **"duplicate versions" troubleshooting** section
+  (cache is per-version and never auto-pruned).
+
 ## [0.8.0] - 2026-06-26
 
 ### Added
