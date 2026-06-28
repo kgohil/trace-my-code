@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "trace-my-code",
-  "description": "A living trace of your codebase — domain + architecture + patterns — that makes a coding agent understand what you mean and reuse what's already there.",
+  "description": "Make your coding agent fluent in your codebase. A living trace of domain, architecture, and patterns it reads before building — so features fit and nothing gets rebuilt.",
   "owner": {
     "name": "kgohil",
     "url": "https://github.com/kgohil"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "trace-my-code",
-      "description": "Curated, self-refreshing architecture + domain docs (Obsidian-format, drift hook) so a coding agent understands your domain and reuses what exists instead of rebuilding it.",
+      "description": "Make your coding agent fluent in your codebase. A living trace of domain, architecture, and patterns it reads before building — so features fit and nothing gets rebuilt.",
       "source": "./",
       "category": "productivity",
       "icon": "./assets/otter-icon.png"
