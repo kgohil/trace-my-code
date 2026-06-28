@@ -58,3 +58,22 @@ markers and curate before trusting it.
 
 After that, Mode A handles edits and the drift hook keeps everything fresh. As the docs
 grow, the skill splits oversized files behind an index (see `references/doc-splitting.md`).
+
+## 5. Measure effectiveness (any time)
+
+Run the bundled meter — the `/ctx-stats` analog — to see whether the trace is earning its keep:
+
+```bash
+bash hooks/trace-eval.sh          # coverage, compression, citation health, A–F grade + what-to-curate worklist
+bash hooks/trace-eval.sh --gaps   # significant dirs with no ARCHITECTURE.md (bootstrap next)
+bash hooks/trace-eval.sh --json   # machine-readable, for CI
+```
+
+Or, with the plugin installed, type **`/trace-stats`** in chat — the trace's **usage stats** (what it
+saved you); pass `--gaps` / `--citations` / `--json` for the health views. A `UserPromptSubmit` hook
+runs the meter and prints it inline, zero model tokens.
+
+A fresh bootstrap grades around **C** (structure solid, `_TODO_`s open); working the meter's
+**what-to-curate** worklist — confirming `_TODO_`s, adding missing Patterns sections, fixing broken
+citations — is what moves it toward **A**. Watch the grade — it's the one number
+that says whether the trace is an asset or rotting into a lie.
