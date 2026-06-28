@@ -72,9 +72,13 @@ method + limits: [`runs/2026-06-real-feature-argo-events.md`](runs/2026-06-real-
 Not a harness — a daily read. The skill ships an effectiveness meter (the `/ctx-stats` analog). From any repo with a trace:
 
 ```
-bash skills/trace-my-code/hooks/trace-eval.sh         # report
-bash skills/trace-my-code/hooks/trace-eval.sh --json  # for CI
+bash skills/trace-my-code/hooks/trace-eval.sh          # health report
+bash skills/trace-my-code/hooks/trace-eval.sh --usage  # what the trace saved (activity + modeled)
+bash skills/trace-my-code/hooks/trace-eval.sh --json   # for CI
 ```
+
+Plugin installed? Type **`/trace-stats`** in chat for the usage view inline — zero model tokens (the
+`/caveman-stats` pattern); `--gaps` / `--citations` / `--json` switch to the health views.
 
 It prints coverage, **map compression** (trace vs codebase tokens), **citation health** (how many `path › symbol` citations still resolve), **freshness** (auto-refreshes + open `_TODO_` debt), an **A–F quality grade**, and a **context footprint** (area doc vs area code). It scores the *map*; the **savings** come from the A/B above. On the ~100k-line app:
 
