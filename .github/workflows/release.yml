@@ -1,0 +1,54 @@
+name: Release on version bump
+
+# On every push to main (i.e. a merged PR), read the skill version from SKILL.md.
+# If no GitHub release exists for it yet, cut one with notes from the CHANGELOG.
+# A merge that doesn't bump the version is a clean no-op.
+#
+# Security: every dynamic value used in a run: block is passed via env: (VERSION,
+# HAS_NOTES, GH_TOKEN); no untrusted github.event.* input is interpolated into a script.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version + extract changelog notes
+        id: rel
+        run: |
+          v="$(sed -n 's/^[[:space:]]*version:[[:space:]]*"\([^"]*\)".*/\1/p' skills/trace-my-code/SKILL.md | head -1)"
+          [ -n "$v" ] || { echo "::error::no version: found in SKILL.md"; exit 1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          awk -v v="$v" '
+            $0 ~ ("^## \\[" v "\\]") { f=1; next }
+            f && /^## \[/ { f=0 }
+            f { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ -s release-notes.md ]; then echo "notes=yes" >> "$GITHUB_OUTPUT"; else echo "notes=no" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Create release if new
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.rel.outputs.version }}
+          HAS_NOTES: ${{ steps.rel.outputs.notes }}
+        run: |
+          if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v$VERSION already released — nothing to do."
+            exit 0
+          fi
+          if [ "$HAS_NOTES" != "yes" ]; then
+            echo "::warning::no CHANGELOG entry for $VERSION — skipping release."
+            exit 0
+          fi
+          gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --title "v$VERSION" --notes-file release-notes.md
+          echo "Released v$VERSION."
