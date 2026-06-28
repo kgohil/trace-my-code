@@ -58,17 +58,22 @@ npx skills add kgohil/trace-my-code --skill trace-my-code
 
 ```
 trace-my-code/
-  SKILL.md                      # bootstrap + author/maintain + drift + reuse-first modes
+  commands/trace.md             # /trace — onboarding router entry (first-run setup or status + next step)
+  commands/trace-stats.md       # /trace-stats — discoverable health/usage meter command
+  SKILL.md                      # start-here router + bootstrap + author/maintain + drift + reuse-first modes
   templates/                    # Obsidian-ready DOMAIN.md + ARCHITECTURE.md + ADR templates
   hooks/doc-drift.sh            # freshness hook (git pre-push or CI) + citation check
   hooks/doc-drift.yml.example   # CI workflow variant
   hooks/trace-eval.sh           # effectiveness meter (health · --usage · --gaps · --citations · --json)
-  hooks/trace-stats-command.sh  # /trace-stats slash command (UserPromptSubmit, zero model tokens)
+  hooks/trace-stats-command.sh  # /trace-stats zero-model-token fast-path (UserPromptSubmit)
   hooks/reuse-first-nudge.sh    # on-by-default reuse-first reminder (UserPromptSubmit)
-  references/                   # bootstrap · auto-update contract · reuse-first · doc-splitting ·
-                                #   obsidian format · multi-repo · routing rule
+  references/                   # onboarding · bootstrap · auto-update contract · reuse-first ·
+                                #   doc-splitting · obsidian format · multi-repo · routing rule
   install.md
 ```
+
+> Note: `commands/` lives at the **plugin root**, not inside `skills/trace-my-code/` — that's
+> where Claude Code discovers slash commands.
 
 ## View the graph
 

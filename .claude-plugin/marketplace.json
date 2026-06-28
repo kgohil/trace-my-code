@@ -9,6 +9,7 @@
   "plugins": [
     {
       "name": "trace-my-code",
+      "version": "0.9.0",
       "description": "Make your coding agent fluent in your codebase. A living trace of domain, architecture, and patterns it reads before building — so features fit and nothing gets rebuilt.",
       "source": "./",
       "category": "productivity",

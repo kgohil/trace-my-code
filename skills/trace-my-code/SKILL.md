@@ -19,7 +19,7 @@ description: >-
 license: MIT
 metadata:
     author: kgohil
-    version: "0.8.0"
+    version: "0.9.0"
     phase: understand
 ---
 
@@ -56,6 +56,24 @@ agent shipped. In the same session an agent built, tested, and shipped a brand-n
 **only** the trace to plan it (_"Phase 0 genuinely replaced crawling… the trace gave me everything"_),
 passed 14/14 tests, and the pipeline caught a real bug a blind crawl ships. One-time cost; a crawl
 is re-paid every task.
+
+## Start here (onboarding router)
+
+**Invoked without a clear task** — a bare `/trace` or `/trace-my-code`, "set this up", "where do
+I start", or a fresh install? **Don't dump the modes and guess.** Follow
+`references/onboarding.md`: read the repo's trace state in one pass (does `docs/DOMAIN.md` / any
+`ARCHITECTURE.md` exist; the `trace-eval` grade, broken citations, open `_TODO_`s, `--gaps`;
+whether the drift loop is wired; the routing rule), then **route**:
+
+- **No trace** → guide first-run setup: bootstrap → **wire the loop** (recommend the CI Action;
+  local pre-push fallback) → routing rule → grade.
+- **Trace exists** → show the `trace-eval` report, then propose the **single highest-value next
+  step** (fix broken citations / confirm `_TODO_`s worst-first / bootstrap the biggest gap / wire
+  the loop / add the routing rule / else switch to reuse-first).
+
+State is **derived from the repo each run, never stored** — the trace itself is the state. A
+clear task (e.g. "document the auth module", "refresh the docs for X") skips the router and goes
+straight to the matching mode below.
 
 ## The trace (what gets written)
 
